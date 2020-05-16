@@ -1,6 +1,7 @@
 #!/bin/bash/python3
 
 import math
+from pynitefields import *
 
 class Point:
 
@@ -12,8 +13,9 @@ class Point:
 
 class PointAtInfinity(Point):
 
-    def __init__(self):
-        super().__init__(0,0)
+    def __init__(self, prime):
+        gf = GaloisField(prime)
+        super().__init__(gf[0],gf[0])
     def isInfinity(self):
         return True
 
@@ -23,127 +25,89 @@ class EllipticCurve:
         self.a = a
         self.b = b
 
-def modulo(number, mod):
-    z = complexDivision(number, mod) * mod
-    return number - z
-
-def complexDivision(number, divisor):
-    q = number / divisor
-    res = math.floor(q.real)
-    if(isinstance(number, complex)):
-        res = int(q.real)
-        res += int(q.imag)*1j
-    return res
-
-# EECA
-
-def xgcd(a, b):
-    """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
-    x0, x1, y0, y1 = 0, 1, 1, 0
-    if a.imag == 0 and a.real < 0:
-        a = -a
-    while a != 0:
-        q, a, b = complexDivision(b, a), modulo(b, a), a
-#        print(str(q) + " " + str(a) + " " + str(b))
-        y0, y1 = y1, y0 - q * y1
-        x0, x1 = x1, x0 - q * x1
-    return b, x0, y0
-
-def modularInverse(number, mod):
-    g, x, _ = xgcd(number, mod)
-    if g != 1:
-        raise ValueError(str(x) + " " + str(g) + " Isnt mod a prime?")
-    return modulo(x, mod)
 
 #Elliptic curve operations
 
 def negatePoint(p):
-    return Point(p.x, -p.y)
+    return Point(p.x, p.y - 2 * p.y)
 
-def addPoint(p, q, curve, mod):
+def addPoint(p, q, curve):
     if p.isInfinity():
         return q
     elif q.isInfinity():
         return p
-    elif modulo(p.x,mod) == modulo(q.x,mod) and modulo(p.y,mod) == modulo(q.y,mod):
-        return doublePoint(p, curve, mod)
-    elif modulo(p.x,mod) == modulo(q.x,mod) and modulo(q.y,mod) == modulo(-p.y,mod):
-        return PointAtInfinity()
-
-    slope = modulo((q.y - p.y) * modularInverse(q.x - p.x, mod), mod)
-    x = modulo((slope ** 2 - p.x - q.x), mod)
-    y = modulo((slope * (p.x - x) - p.y), mod)
-    return Point(x,y)
-
-def doublePoint(p, curve, mod):
-    if modulo(p.x,mod) == 0:
-        return PointAtInfinity()
-    slope = modulo((3 * p.x ** 2 + curve.a) * modularInverse(2 * p.y, mod), mod)
-    x = modulo((slope ** 2 - 2 * p.x), mod)
-    y = modulo((slope * (p.x - x) - p.y), mod)
+    elif p.x == q.x and p.y == q.y - 2 * q.y:
+        return PointAtInfinity(p.x.p)
+    elif p.x == q.x and q.y == p.y:
+        slope = (3 * pow(p.x, 2) + curve.a) / (2 * p.y)
+    else:
+        slope = (q.y - p.y) / (q.x - p.x)
+    x = slope ** 2 - p.x - q.x
+    y = slope * (p.x - x) - p.y
     return Point(x,y)
 
 def negatePoint(p):
-    return Point(p.x,-p.y)
+    return Point(p.x,p.y - 2 * p.y)
 
 def getBinary(integer):
     return [int(n) for n in bin(integer)[2:]]
 
-def doubleAndAdd(p, k, curve, mod):
+def doubleAndAdd(p, k, curve):
     binary = getBinary(k)
     q = PointAtInfinity()
     v = p
     i = len(binary) - 1
     while i >= 0:
         if binary[i] == 1:
-            q = addPoint(q, v, curve, mod)
-        v = doublePoint(v, curve, mod)
+            q = addPoint(q, v, curve)
+        v = addPoint(v, v, curve)
         i -= 1
     return q
 
 
 # Miller Algorithm
 
-def computeFunction(p, q, value, curve, mod):
-    if modulo(p.x,mod) == modulo(q.x,mod) and modulo(p.y,mod) == modulo(q.y,mod) and modulo(p.y,mod) != 0:
-        return computeTangent(p, value, curve, mod)
-    elif modulo(p.x,mod) == modulo(q.x,mod) and modulo(p.y,mod) == modulo(-q.y,mod):
-        return computeVertical(p, value, mod)
+def computeFunction(p, q, value, curve):
+    if (p.x == q.x and p.y == q.y - 2 * q.y) or p.isInfinity() or q.isInfinity():
+        if p.isInfinity():
+            return value.x - q.x
+        else:
+            return value.x - p.x
+    elif p.x == q.x and p.y == q.y:
+        slope = (3 * pow(p.x, 2) + curve.a) / (2 * p.y)
     else:
-        slope = modulo((p.y - q.y) * modularInverse(p.x - q.x, mod), mod)
-        return modulo(value.y - p.y - slope * (p.x - value.x) , mod)
+        slope = (p.y - q.y) / (p.x - q.x)
+    return value.y - p.y + slope * (p.x - value.x)
 
-def computeTangent(p, value, curve, mod):
-    slope = modulo(((3 * p.x ** 2 + curve.a) * modularInverse(2 * p.y,mod)), mod)
-    return modulo(value.y - p.y + slope * (p.x - value.x), mod)
 
-def computeVertical(p, value, mod):
-    return modulo((value.x - p.x), mod)
-
-def Miller(p, order, value, curve, mod):
+def Miller(p, order, value, curve):
     res = 1
     v = p
     binary = getBinary(order)
-    i = len(binary) - 1
+    i = len(binary) - 2
     while i >= 0:
-        dv = doublePoint(v, curve, mod)
-        res = modulo(res ** 2 * computeFunction(v, v, value, curve, mod), mod)
+        dv = addPoint(v, v, curve)
+        res = res ** 2 * computeFunction(v, v, value, curve) #/ computeFunction(dv, negatePoint(dv), value, curve)
         v = dv
         if binary[i] == 1:
-            vp = addPoint(v, p, curve, mod)
-            res = modulo(res * computeFunction(v, p, value, curve, mod), mod)
+            vp = addPoint(v, p, curve)
+            res = res * computeFunction(v, p, value, curve) #/ computeFunction(vp, negatePoint(vp), value, curve)
             v = vp
         i = i - 1
     return res
 
-p = Point(8,703)
-q = Point(49,20)
-s = Point(0,0)
+gf = GaloisField(1009)
+p = Point(gf[8],gf[703])
+q = Point(gf[49],gf[20])
+s = Point(gf[0],gf[0])
 
-def WeilPairing(p, q, order, curve, mod):
-    a = Miller(p,order,q,curve,mod)
-    b = Miller(q,order,p,curve,mod)
-    return modulo(a * modularInverse(b,mod),mod)
+def WeilPairing(p, q, s, order, curve):
+    a = Miller(p,order,addPoint(q,s,curve),curve)
+    b = Miller(p,order,s,curve)
+    c = Miller(q,order,addPoint(p, negatePoint(s), curve),curve)
+    d = Miller(q,order,negatePoint(s),curve)
+    return a * d / (b * c)
 
-print(WeilPairing(p,q,7,EllipticCurve(37,0),1009)) 
-print(WeilPairing(q,p,7,EllipticCurve(37,0),1009)) 
+print(WeilPairing(p,q,s,7,EllipticCurve(gf[37],0))) 
+print(WeilPairing(q,p,s,7,EllipticCurve(gf[37],0))) 
+
