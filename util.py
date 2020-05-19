@@ -1,4 +1,4 @@
-#!/bin/bash/python3
+#!/usr/bin/python3
 
 import math
 from pynitefields import *
@@ -77,7 +77,7 @@ def computeFunction(p, q, value, curve):
         slope = (3 * pow(p.x, 2) + curve.a) / (2 * p.y)
     else:
         slope = (p.y - q.y) / (p.x - q.x)
-    return value.y - p.y + slope * (p.x - value.x)
+    return (value.y - p.y + slope * (p.x - value.x)) / (value.x + p.x + q.x - pow(slope, 2))
 
 
 def Miller(p, order, value, curve):
@@ -96,18 +96,32 @@ def Miller(p, order, value, curve):
         i = i - 1
     return res
 
-gf = GaloisField(1009)
-p = Point(gf[8],gf[703])
-q = Point(gf[49],gf[20])
-s = Point(gf[0],gf[0])
-
 def WeilPairing(p, q, s, order, curve):
     a = Miller(p,order,addPoint(q,s,curve),curve)
     b = Miller(p,order,s,curve)
     c = Miller(q,order,addPoint(p, negatePoint(s), curve),curve)
     d = Miller(q,order,negatePoint(s),curve)
-    return a * d / (b * c)
+   
+    
+    #e = Miller(p,order,q,curve)
+    #f = Miller(q,order,p,curve)
+    #print(e)
+    #print(f)
+    #print(e / f)
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+    return a * d / (b * c) 
 
-print(WeilPairing(p,q,s,7,EllipticCurve(gf[37],0))) 
-print(WeilPairing(q,p,s,7,EllipticCurve(gf[37],0))) 
+if __name__ == "__main__":
+    gf = GaloisField(1009)
+    p = Point(gf[8],gf[703])
+    q = Point(gf[49],gf[20])
+    s = Point(gf[0],gf[0])
+    ec = EllipticCurve(gf[37],gf[0])
+
+
+    print(WeilPairing(p,q,s,7,ec)) 
+    print(WeilPairing(p,p,s,7,ec))
 
