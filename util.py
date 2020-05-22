@@ -15,7 +15,10 @@ class Point:
         if(self.isInfinity()):
             print("Point at Infinity")
         else:
-            print("X: " + convertListToString(self.x.exp_coefs) + "  Y: " + convertListToString(self.y.exp_coefs))
+            print("X: ", end ="")
+            self.x.print()
+            print("Y: ", end ="")
+            self.y.print()
 
 
 class PointAtInfinity(Point):
@@ -27,9 +30,19 @@ class PointAtInfinity(Point):
 
 
 class EllipticCurve:
-    def __init__(self,a,b):
+    def __init__(self,a,b,gf):
         self.a = a
         self.b = b
+        self.gf = gf
+        self.discriminant = -16 * (4 * pow(a,3) + 27 * pow(b,2))
+        if not self.isSmooth():
+            raise Exception("The curve %s is not smooth!" % self)
+
+    def isSmooth(self):
+        return self.discriminant != self.gf[0]
+
+    def testPoint(self, x, y):
+        return y*y == x*x*x + self.a * x + self.b
 
 
 #Elliptic curve operations
@@ -120,20 +133,8 @@ def WeilPairing(p, q, s, order, curve):
 
 ## Main and other functions
 
-def convertListToString(input_seq):
-    i = 0
-    final_str = "["
-    while(True):
-        final_str += " " + str(input_seq[i]) + " "
-        i += 1
-        if(i == len(input_seq)):
-            final_str += "]"
-            break
-        final_str += ";"
-    return final_str
-
 if __name__ == "__main__":
-    gf = GaloisField(17)
+    gf = GaloisField(2,8,[1, 0, 1, 1, 1, 0, 0, 0, 1])
     p = Point(gf[9],gf[15])
     #q = Point(gf[49],gf[20])
     #s = Point(gf[0],gf[0])
