@@ -2,7 +2,7 @@ from participant import *
 from galoisfield import *
 
 if __name__ == "__main__":
-    """print("\nFIELD 31")
+    print("\nFIELD 31")
     gf31 = GaloisField(31)
     gf31[4].print()
     gf31[10].print()
@@ -23,13 +23,12 @@ if __name__ == "__main__":
     el2_10 = GFieldElement(2,4,[1, 1, 1, 0],[1, 1, 0, 0, 1])
     el2_4.print()
     el2_10.print()
-    (el2_4 * el2_10).print()"""
+    (el2_4 * el2_10).print()
 
-    gf = GaloisField(17)
+    """gf = GaloisField(17)
     ec = EllipticCurve(gf[0],gf[7],gf)
+    generator = Point(gf[15],gf[13])
 
-    A = Participant()
-    B = Participant()
-    C = Participant()
-
-    #doubleAndAdd(p,A.privateKey,ec).printPoint()
+    A = Participant(ec, generator, 18)
+    B = Participant(ec, generator, 18)
+    C = Participant(ec, generator, 18)"""

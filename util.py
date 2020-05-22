@@ -118,12 +118,6 @@ def WeilPairing(p, q, s, order, curve):
     c = Miller(q,order,addPoint(p, negatePoint(s), curve),curve)
     d = Miller(q,order,negatePoint(s),curve)
 
-
-    #e = Miller(p,order,q,curve)
-    #f = Miller(q,order,p,curve)
-    #print(e)
-    #print(f)
-    #print(e / f)
     print(a)
     print(b)
     print(c)
