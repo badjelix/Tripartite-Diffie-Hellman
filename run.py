@@ -1,13 +1,35 @@
 from participant import *
+from galoisfield import *
 
 if __name__ == "__main__":
-    gf = GaloisField(2,4,[1, 1, 0, 0, 1])
-    ele13 = FieldElement(2,4,[1, 0, 1, 1],irre_poly=[1, 1, 0, 0, 1])
-    ele14 = FieldElement(2,4,[1, 0, 0, 1],irre_poly=[1, 1, 0, 0, 1])
-    print(gf[14] / gf[13])
-    print(ele14 / ele13)
-    #A = Participant()
-    #B = Participant()
-    #C = Participant()
+    """print("\nFIELD 31")
+    gf31 = GaloisField(31)
+    gf31[4].print()
+    gf31[10].print()
+    (gf31[4] * gf31[10]).print()
+    print("AGORA OS A SERIO")
+    el31_4 = GFieldElement(31,1,[4])
+    el31_10 = GFieldElement(31,1,[10])
+    el31_4.print()
+    el31_10.print()
+    (el31_4 * el31_10).print()
+    print("\nFIELD 2^4")
+    gf2 = GaloisField(2,4,[1, 1, 0, 0, 1])
+    gf2[4].print()
+    gf2[10].print()
+    (gf2[4] * gf2[10]).print()
+    print("AGORA OS A SERIO")
+    el2_4 = GFieldElement(2,4,[1, 1, 0, 0],[1, 1, 0, 0, 1])
+    el2_10 = GFieldElement(2,4,[1, 1, 1, 0],[1, 1, 0, 0, 1])
+    el2_4.print()
+    el2_10.print()
+    (el2_4 * el2_10).print()"""
+
+    gf = GaloisField(17)
+    ec = EllipticCurve(gf[0],gf[7],gf)
+
+    A = Participant()
+    B = Participant()
+    C = Participant()
 
     #doubleAndAdd(p,A.privateKey,ec).printPoint()

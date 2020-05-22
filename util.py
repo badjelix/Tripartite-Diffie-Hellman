@@ -34,7 +34,7 @@ class EllipticCurve:
         self.a = a
         self.b = b
         self.gf = gf
-        self.discriminant = -16 * (4 * pow(a,3) + 27 * pow(b,2))
+        self.discriminant = -16 * (4 * a*a*a + 27 * b*b)
         if not self.isSmooth():
             raise Exception("The curve %s is not smooth!" % self)
 
