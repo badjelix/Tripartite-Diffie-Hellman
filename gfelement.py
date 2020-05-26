@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-
 import math
 
-class GFieldElement():
+class GFElement():
     def __init__(self, p, n, coefs, irre_poly = []):
+        """ Attributes of an element of a Galois Field: GF(p^n) """
         self.p = p
         self.n = n
         self.dim = int(pow(p, n))
@@ -19,12 +19,11 @@ class GFieldElement():
             return None
         # Prime case
         if self.n == 1:
-            return GFieldElement(self.p, self.n, [(self.coefs[0] + el.coefs[0]) % self.p])
-        else: # Power of prime case
-            # Coefficients simply add modulo p
+            return GFElement(self.p, self.n, [(self.coefs[0] + el.coefs[0]) % self.p])
+        # Power of prime
+        else:
             new_coefs = [(self.coefs[i] + el.coefs[i]) % self.p for i in range(0, self.n)]
-            return GFieldElement(self.p, self.n, new_coefs, self.irre_poly)
-
+            return GFElement(self.p, self.n, new_coefs, self.irre_poly)
 
     """ Add a field element to the left of this one """
     def __radd__(self, el):
@@ -39,42 +38,64 @@ class GFieldElement():
             return None
         # Prime case
         if self.n == 1:
-            return GFieldElement(self.p, self.n, [(self.coefs[0] - el.coefs[0]) % self.p])
-        else:  # Power of prime case
-            # Coefficients subtract modulo p
+            return GFElement(self.p, self.n, [(self.coefs[0] - el.coefs[0]) % self.p])
+        # Power of prime
+        else:
             new_coefs = [(self.coefs[i] - el.coefs[i]) % self.p for i in range(0, self.n)]
-            return GFieldElement(self.p, self.n, new_coefs, self.irre_poly)
+            return GFElement(self.p, self.n, new_coefs, self.irre_poly)
+
+
+    """ Print out information about the element."""
+    def print(self):
+        print(self.coefs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+class GFElsement():
+    def __init__(self, p, n, coefs, irre_poly = []):
+        self.p = p
+        self.n = n
+        self.dim = int(pow(p, n))
+        self.coefs = coefs
+        self.irre_poly = irre_poly
 
 
     """ Multiplication """
     def __mul__(self, el):
         # Multiplication by a constant (must be on the right!)
         if isinstance(el, int):
-            return GFieldElement(self.p, self.n, [(el * exp_coef) % self.p for exp_coef in self.coefs])
+            return GFElement(self.p, self.n, [(el * exp_coef) % self.p for exp_coef in self.coefs])
         # Multiplication by another FieldElement
-        elif isinstance(el, GFieldElement):
+        elif isinstance(el, GFElement):
             # Make sure we're in the same field!
             if (self.p != el.p) or (self.n != el.n):
                 print("Error, cannot multiply elements from different fields!")
                 return None
             # Prime case
             if self.n == 1:
-                return GFieldElement(self.p, self.n, [(self.coefs[0] * el.coefs[0]) % self.p])
+                return GFElement(self.p, self.n, [(self.coefs[0] * el.coefs[0]) % self.p])
             # Power of prime case
             else:
                 # Multiplying by 0, nothing to see here
                 zeros = [0] * self.n
                 if el.prim_power == zeros or self.prim_power == zeros:
-                    return GFieldElement(self.p, self.n, zeros)
+                    return GFElement(self.p, self.n, zeros)
                 else:
                     new_exp = self.prim_power + el.prim_power # New exponent
-                    # If the exponent calculated is outside the range of primitive element
-                    # powers of the field, we need to wrap it around using the fact that
-                    # the last field element is 1.
                     if new_exp > self.dim - 1:
                         new_exp = ((new_exp - 1) % (self.dim - 1)) + 1
                     new_coefs = [int(x) for x in self.field_list[new_exp].split(',')]
-                    return GFieldElement(self.p, self.n, new_coefs, self.field_list, self.is_sdb, self.sdb_field_list)
+                    return GFElement(self.p, self.n, new_coefs, self.field_list, self.is_sdb, self.sdb_field_list)
         else:
             raise TypeError("Unsupported operator")
 
