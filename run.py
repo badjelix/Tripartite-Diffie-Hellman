@@ -1,6 +1,6 @@
 from participant import *
 from gfelement import *
-from Crypto.pythonSchoof.reduced_computation_schoof_algorithm import *
+from pythonSchoof import *
 
 if __name__ == "__main__":
     """print("\nFIELD 31")
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     """ Generate the curve over a finite field"""
     field_prime = 29
     gf = GaloisField(field_prime)
-    ec = EllipticCurve(-gf[1],gf[1],gf)
+    ec = EllipticCurve(gf[28],gf[1],gf)
     """ Get a generator of a large subgroup of the curve (h=2 or h=3) """
     curve_order = reduced_computation_schoof_algorithm(field_prime, -1, 1)
     print(curve_order)
