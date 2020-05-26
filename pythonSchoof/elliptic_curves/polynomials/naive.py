@@ -22,12 +22,12 @@ A naive implementation of the ring of polynomials over an elliptic curve.
 @author    Peter Dinges <pdinges@acm.org>
 """
 
-from rings import CommutativeRing
-from rings.polynomials.naive import Polynomials
+from pythonSchoof.rings import CommutativeRing
+from pythonSchoof.rings.polynomials.naive import Polynomials
 
-from support.types import template
-from support.operators import operand_casting
-from support.profiling import profiling_name, local_method_names
+from pythonSchoof.support.types import template
+from pythonSchoof.support.operators import operand_casting
+from pythonSchoof.support.profiling import profiling_name, local_method_names
 
 @operand_casting
 @local_method_names
@@ -36,7 +36,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
     """
     A ring of polynomials over an elliptic curve; the polynomials support infix
     notation for ring operations, as well as mixed argument types.
-    
+
     This is a template class that must be instantiated with the elliptic curve.
     Use it, for example, as follows:
     @code
@@ -57,7 +57,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
     y**2 == x**3 + 3**x + 4
     p = x**2 + 2* x + y*( 3 * x**5 + 6 * x**2 )  # A (pseudo) random polynomial
     @endcode
-    
+
     The ring of polynomials over an elliptic curve @f$ E @f$ is
     @f$ \mathbb{F}[x,y]/(y^2 - x^3 - Ax - B) @f$, where @f$ \mathbb{F} @f$ is
     the field over which the curve was defined, and @f$ A, B @f$ are the curve
@@ -65,7 +65,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
     that the polynomial's domain is the set of points on @f$ E @f$; the
     (Cartesian) coordinates of the points @f$ (x, y) \in E @f$ are connected by
     the fundamental relation @f$ y^2 = x^3 + Ax + B @f$.
-    
+
     @note  As a consequence of the fundamental relation, powers of @f$ y @f$
            greater than one can be reduced to a polynomial in  @f$ x @f$.  This
            is what this implementation does.  Since it does not provide full
@@ -74,34 +74,34 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
            - The divisor is a polynomial in @f$ x @f$ alone; this works for all
              dividends.
            - Dividend and divisor are polynomials in @f$ y @f$ alone.
-           
+
            Besides restricting arithmetic, the implementation emphasizes
            simplicity over speed; it omits possible optimizations.
-    
+
     @note  The class uses the operand_casting() decorator: @c other operands in
            binary operations will first be treated as CurvePolynomial elements.
            If that fails, the operation will be repeated after @p other was fed
            to the constructor __init__().  If that fails, too, then the
            operation returns @c NotImplemented (so that @p other.__rop__()
            might be invoked).
-    
+
     @see   Charlap, Leonard S. and Robbins, David P., "CRD Expositroy Report 31:
            An Elementary Introduction to Elliptic Curves", 1988, chapter 3
-    """    
+    """
 
-    #- Instance Methods ----------------------------------------------------------- 
-    
+    #- Instance Methods -----------------------------------------------------------
+
     def __init__(self, x_factor, y_factor=None):
         """
         Create a new polynomial from the given coefficient lists @p x_factor
         and @p y_factor.
-        
+
         Polynomials @f$ s @f$ over elliptic curves have a canonical form
         @f$ s(x, y) = a(x) + y\cdot b(x) @f$, where @f$ a, b @f$ are
         polynomials of @f$ x @f$ alone.  The parameter @p x_factor
         determines the coefficients of @f$ a @f$, @p y_factor determines the
         coefficients of @f$ b @f$.
-        
+
         @param x_factor    An iterable that lists the coefficients of the
                            polynomial @f$ a @f$ in ascending order:
                            @p x_factor[0] is the constant,
@@ -109,7 +109,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
                            quadratic coeffiecient; and so on.
         @param y_factor    Similar to @p x_factor, but for the polynomial
                            @f$ b @f$.
-        
+
         For example, construct the polynomial @f$ x^3 + 4x - y\cdot(3x + 2) @f$
         as follows:
         @code
@@ -117,7 +117,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
         R = CurvePolynomials( E )
         p = R( (0, 4, 0, 1), (2, 3) )
         @endcode
-        
+
         @note  Leading zeros in the coefficient lists will be ignored.
         """
         # x_factor: polynomial in x only
@@ -138,27 +138,27 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
         """
         Return the polynomial @f$ a @f$ from the canonical form
         @f$ s(x, y) = a(x) + y\cdot b(x) @f$ of @p self.
-        
+
         @note  The returned polynomial is univariate.
         """
         return self.__x_factor
-    
-    
+
+
     def y_factor(self):
         """
         Return the polynomial @f$ b @f$ from the canonical form
         @f$ s(x, y) = a(x) + y\cdot b(x) @f$ of @p self.
-        
+
         @note  The returned polynomial is univariate.
         """
         return self.__y_factor
-    
-    
+
+
     def leading_coefficient(self):
         """
         Return the leading coefficient, or zero if @p self is
         the zero polynomial.
-        
+
         @note  The fundamental relation @f$ y^2 = x^3 + Ax + B @f$ forces the
                linear polynomials @f$ x @f$ and @f$ y @f$ to have different
                degrees.  Thus @f$ \deg(x) = 2 @f$ and @f$ \deg(y) = 3 @f$.
@@ -171,14 +171,14 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
             return self.__x_factor.leading_coefficient()
         else:
             return self.__y_factor.leading_coefficient()
-    
-    
+
+
     def __bool__(self):
         """
         Test whether the polynomial is non-zero: return @c True if, and only
         if, at least one coefficient is non-zero. Return @c False if all
         coefficients are zero.
-        
+
         Implicit conversions to boolean (truth) values use this method, for
         example when @c x is an element of Polynomials:
         @code
@@ -187,26 +187,26 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
         @endcode
         """
         return bool(self.__x_factor) or bool(self.__y_factor)
-    
-    
+
+
     def __eq__(self, other):
         """
         Test whether another polynomial @p other is equal to @p self; return
         @c True if that is the case.  The infix operator @c == calls
         this method.
-        
+
         Two polynomials are equal if, and only if, all the coefficients of
-        their canonical forms are equal. 
+        their canonical forms are equal.
         """
         return self.__x_factor == other.x_factor() \
-                and self.__y_factor == other.y_factor() 
+                and self.__y_factor == other.y_factor()
 
 
     def __add__(self, other):
         """
         Return the sum of @p self and @p other. The infix operator @c + calls
         this method.
-        
+
         Polynomials add coefficient-wise without carrying: the sum of two
         polynomials @f$ \sum_{k,l} a_{k,l}x^{k}y^{l} @f$ and
         @f$ \sum_{k,l} b_{k,l}x^{k}y^{l} @f$ is the polynomial
@@ -220,7 +220,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
     def __neg__(self):
         """
         Return the additive inverse (the negative) of @p self.
-        
+
         A polynomial is negated by negating its coefficients: the additive
         inverse of @f$ \sum_{k,l} a_{k,l}x^{k}y^{l} @f$ is
         @f$ \sum_{k,l} -a_{k,l}x^{k}y^{l} @f$.
@@ -229,18 +229,18 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
                     -self.__x_factor,
                     -self.__y_factor
                 )
-    
-    
+
+
     def __mul__(self, other):
         """
         Return the product of @p self and @p other. The infix operator @c *
         calls this method.
-        
+
         Two polynomials are multiplied through convolution of their
         coefficients; however that is overly complicated to write with sums.
         Instead, simply imagine mutliplying the canonical forms
         @f$ a(x) + y \cdot b(x) @f$ and @f$ c(x) + y \cdot d(x) @f$.
-        
+
         @see   rings.polynomials.naive.Polynomials.__mul__() for an explanation
                of univariate polynomial multiplication.
         """
@@ -259,7 +259,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
     def __divmod__(self, other):
         """
         Return the quotient and remainder of @p self divided by @p other.
-        
+
         The built-in method @c divmod() calls this method.  For the returned
         values @c quotient and @c remainder, we have
         @code
@@ -275,15 +275,15 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
         """
         if not other:
             raise ZeroDivisionError
-        
+
         if not self:
             return self.polynomial_ring().zero(), self.polynomial_ring().zero()
-        
+
         if other.y_factor() and (self.__x_factor or other.x_factor()):
             # Ok, this is cheating. Multivariate polynomial division is,
             # however, quite complicated and unnecessary for our purpose.
             raise ValueError("multivariate division is unsupported")
-        
+
         if other.x_factor():
             qx, rx = divmod( self.__x_factor, other.x_factor() )
             qy, ry = divmod( self.__y_factor, other.x_factor() )
@@ -292,15 +292,15 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
             qx, rx = divmod( self.__y_factor, other.y_factor() )
             zero = self.polynomial_ring().zero().x_factor()
             qy, ry = zero, zero
-        
+
         quotient = self.__class__( qx, qy )
         remainder = self.__class__( rx, ry )
-        
+
         return quotient, remainder
 
 
-    #- Class Methods----------------------------------------------------------- 
-    
+    #- Class Methods-----------------------------------------------------------
+
     @classmethod
     def curve(cls):
         """
@@ -324,7 +324,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
             cls.__y2_reduction = cls.polynomial_ring()( B, A, 0, 1 )
             return cls.__y2_reduction
 
-    
+
     @classmethod
     def polynomial_ring(cls):
         """
@@ -348,7 +348,7 @@ class CurvePolynomials( CommutativeRing, metaclass=template("_elliptic_curve") )
         R = cls.polynomial_ring()
         return cls( R.zero(), R.zero() )
 
-    
+
     @classmethod
     def one(cls):
         """

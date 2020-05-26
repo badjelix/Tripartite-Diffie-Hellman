@@ -23,18 +23,18 @@ ring interface.
 @author    Peter Dinges <pdinges@acm.org>
 """
 
-from support.profiling import profiling_name
+from pythonSchoof.support.profiling import profiling_name
 
 @profiling_name("Z")
 class Integers(int):
     """
     The ring of integers.  This wrapper class extends Python's built-in integer
     type @c int with the interface provided by the other ring classes.
-    
+
     @see   rings.polynomials.naive.Polynomials,
            rings.quotients.naive.QuotientRing
     """
-    
+
     @staticmethod
     def zero():
         """

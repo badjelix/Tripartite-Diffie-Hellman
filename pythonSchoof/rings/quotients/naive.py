@@ -22,15 +22,15 @@ A naive implementation of quotient rings (factor rings, residue class rings).
 @author    Peter Dinges <pdinges@acm.org>
 """
 
-from rings import CommutativeRing
+from pythonSchoof.rings import CommutativeRing
 
-from support.types import template
-from support.operators import operand_casting
-from support.profiling import profiling_name, local_method_names
-from support.rings import extended_euclidean_algorithm
+from pythonSchoof.support.types import template
+from pythonSchoof.support.operators import operand_casting
+from pythonSchoof.support.profiling import profiling_name, local_method_names
+from pythonSchoof.support.rings import extended_euclidean_algorithm
 
 # FIXME: Having ring and modulus as parameters is redundant. Obviously we have
-#        ring == modulus.__class__ 
+#        ring == modulus.__class__
 
 @operand_casting
 @local_method_names
@@ -40,7 +40,7 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
     A ring of residue classes of ring elements modulo a fixed ring element; the
     residue classes (quotient ring elements) support infix notation for ring
     operations, as well as mixed argument types.
-    
+
     This is a template class that must be instantiated with the source ring
     and modulus.  Use it, for example, as follows:
     @code
@@ -52,16 +52,16 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
     z == Z4(2) * 2 # This true because 4 == 0 modulo 4
     type(z) is Z4  # This is also true
     @endcode
-    
+
     Other examples of QuotientRing template instances are:
     @code
     Z17 = QuotientRing( rings.integers.naive.Integers, 17 )    # Z/17Z
-    
+
     # The ring (Z/2Z[x]) / (x^3 + x + 1) is isomorphic to GF8,
     # the field with 8 elements
     GF2  = fields.finite.naive.FiniteField( 2 )
     GF2x = rings.polynomials.naive.Polynomials( GF2 )
-    GF8 = QuotientRing( GF2x, GF2x(1, 1, 0, 1) ) 
+    GF8 = QuotientRing( GF2x, GF2x(1, 1, 0, 1) )
     @endcode
 
     A quotient ring, factor ring, or residue class ring, is a ring
@@ -80,27 +80,27 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
     - __mul__(): Multiplication with the @c * operator; @c self is the
       left factor
     - __divmod__(): Division with remainder; @c self is the dividend (left element)
-    
+
     @note  The implementation emphasizes simplicity over speed; it omits
            possible optimizations.
-    
+
     @note  The class uses the operand_casting() decorator: @c other operands in
            binary operations will first be treated as QuotientRing elements.
            If that fails, the operation will be repeated after @p other was fed
            to the constructor __init__().  If that fails, too, then the
            operation returns @c NotImplemented (so that @p other.__rop__()
            might be invoked).
-    
+
     @see   For example, Robinson, Derek J. S.,
            "An Introduction to Abstract Algebra", p. 106.
     """
-    
-    #- Instance Methods ----------------------------------------------------------- 
-    
+
+    #- Instance Methods -----------------------------------------------------------
+
     def __init__(self, representative):
         """
         Construct a new residue class @p representative modulo modulus().
-        
+
         If the @p representative already is an element of this QuotientRing
         class, then the new element is a copy of @p representative.
         """
@@ -119,14 +119,14 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
         @p self.  This is an element of the source ring(), not a residue class.
         """
         return self.__remainder
-    
-    
+
+
     def __bool__(self):
         """
         Test whether the residue class (QuotientRing element) is non-zero:
         return @c True if, and only if, the remainder modulo modulus() is
         non-zero. Return @c False if the remainder is zero.
-        
+
         Implicit conversions to boolean (truth) values use this method, for
         example when @c x is an element of a QuotientRing:
         @code
@@ -142,10 +142,10 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
         Test whether another residue class (QuotientRing element) @p other is
         equivalent to @p self; return @c True if that is the case.  The infix
         operator @c == calls this method.
-        
+
         Two residue classes @f$ [x], [y] @f$ are equal if, and only if, the
         difference of two representatives is a multiple of the modulus():
-        @f$ x-y = m\cdot z @f$. 
+        @f$ x-y = m\cdot z @f$.
         """
         # The representative is always the remainder; an equality test suffices
         return self.__remainder == other.remainder()
@@ -155,14 +155,14 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
         """
         Return the sum of @p self and @p other. The infix operator @c + calls
         this method.
-        
+
         The sum of two residue classes (QuotientRing elements) @f$ [x], [y] @f$
-        is the residue class @f$ [x + y] @f$. 
+        is the residue class @f$ [x + y] @f$.
         """
         return self.__class__(
                         self.__remainder + other.remainder()
                     )
-    
+
 
     def __neg__(self):
         """
@@ -177,9 +177,9 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
         """
         Return the product of @p self and @p other. The infix operator @c *
         calls this method.
-        
+
         The product of two residue classes (QuotientRing elements)
-        @f$ [x], [y] @f$ is the residue class @f$ [x \cdot y] @f$. 
+        @f$ [x], [y] @f$ is the residue class @f$ [x \cdot y] @f$.
         """
         return self.__class__(
                         self.__remainder * other.remainder()
@@ -199,7 +199,7 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
                                        no multiplicative inverse.
         """
         return self * other.multiplicative_inverse()
-        
+
     def __rtruediv__(self, other):
         """
         Return the quotient of @p other and @p self: multiply @p other with
@@ -214,13 +214,13 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
                                        no multiplicative inverse.
         """
         return other * self.multiplicative_inverse()
-    
+
 
     def multiplicative_inverse(self):
         """
         Return an residue class (QuotientRing element) @c n such that
         @c n * self is one().
-    
+
         @exception ZeroDivisionError   if @p self is not a unit, that is, has
                                        no multiplicative inverse.
         """
@@ -229,17 +229,17 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
 
         inverse, ignore, gcd = \
             extended_euclidean_algorithm( self.__remainder, self._modulus )
-    
+
         if gcd == self._ring.one():
             return self.__class__( inverse )
         else:
             message = "element has no inverse: representative and modulus " \
                       "are not relatively prime"
-            raise ZeroDivisionError( message ) 
+            raise ZeroDivisionError( message )
 
 
-    #- Class Methods----------------------------------------------------------- 
-    
+    #- Class Methods-----------------------------------------------------------
+
     @classmethod
     def modulus(cls):
         """
@@ -255,8 +255,8 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
         Return the source ring.
         """
         return cls._ring
-    
-    
+
+
     @classmethod
     def zero(cls):
         """
@@ -264,8 +264,8 @@ class QuotientRing( CommutativeRing, metaclass=template( "_ring", "_modulus" ) )
         class (QuotientRing element) of ring().zero()
         """
         return cls( cls._ring.zero() )
-    
-    
+
+
     @classmethod
     def one(cls):
         """

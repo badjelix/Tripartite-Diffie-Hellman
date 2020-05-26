@@ -23,19 +23,19 @@ of an elliptic curve.
 @author    Peter Dinges <pdinges@acm.org>
 """
 
-from rings.quotients.naive import QuotientRing
-from fields.fraction.naive import FractionField
-from elliptic_curves.naive import EllipticCurve
-from elliptic_curves.polynomials.naive import CurvePolynomials
-from elliptic_curves.division_polynomials.naive import DivisionPolynomialsList
+from pythonSchoof.rings.quotients.naive import QuotientRing
+from pythonSchoof.fields.fraction.naive import FractionField
+from pythonSchoof.elliptic_curves.naive import EllipticCurve
+from pythonSchoof.elliptic_curves.polynomials.naive import CurvePolynomials
+from pythonSchoof.elliptic_curves.division_polynomials.naive import DivisionPolynomialsList
 
-from support.types import template
+from pythonSchoof.support.types import template
 
 class LTorsionGroup( metaclass=template("_elliptic_curve") ):
     """
     An l-torsion group of an elliptic curve for odd l; use the @c elements()
     method to have intuitive syntax when working with l-torsion points.
-    
+
     This is a template class that must be instantiated with the elliptic curve.
     Use it, for example, as follows:
     @code
@@ -43,19 +43,19 @@ class LTorsionGroup( metaclass=template("_elliptic_curve") ):
     E = elliptic_curves.naive.EllipticCurve( FiniteField(7), 3, 4 )
     # Instantiate the template; El is a class (here: l-torsion groups of E)
     El = LTorsionGroup( E )
-    
+
     # Construct the group of 3-torsion points and do something with its points
     for P in El[3].elements():
         do_something(P)
     @endcode
-    
+
     The l-Torsion points of an elliptic curve are the points of order l.  Their
     coordinates come from the algebraic closure of the elliptic curve's field,
     which makes them badly suited for computer representation. (Extending the
     coordinate domain to the algebraic closure makes sure that all points of
     order l are available; there are always @f$ l^2 @f$ points of order l if
-    l is prime to the field characteristic.) 
-    
+    l is prime to the field characteristic.)
+
     @note  The l-torsion points are represented implicitly through polynomial
            arithmetic.  Therefore, the list of points in returned by
            @c elements() contains only a single entry: the point @f$ (x, y) \in
@@ -64,39 +64,39 @@ class LTorsionGroup( metaclass=template("_elliptic_curve") ):
            functions over the elliptic curve @f$ E @f$ with numerator and
            denominator polynomials taken modulo the l-th division polynomial
            @f$ \psi_l @f$.
-           
+
     @note  The class supports only odd torsions greater one because
            multivariate polynomial arithmetic is unavailable
-           
+
     @see   Silverman, Joseph H., "The Arithmetic of Elliptic Curves",
            second edition, Springer, 2009, p. 373
     """
 
-    #- Instance Methods ------------------------------------------------------- 
-    
+    #- Instance Methods -------------------------------------------------------
+
     def __init__(self, torsion):
         """
         Construct a new l-torsion group for the given @p torsion.
-        
+
         @param torsion The @p torsion is the order of the points in the group;
                        the group represents all points of order @p torsion.  It
                        must be an odd integer greater than 1 and prime to the
                        field characteristic; the limitation comes from the
-                       implicit representation, see above. 
+                       implicit representation, see above.
         """
         torsion = int( torsion )
         if torsion < 3 or torsion % 2 == 0 or self.curve().field()(torsion) == 0:
             raise ValueError( "only odd torsions greater than 1 are supported" )
-        
+
         self.__torsion = torsion
         self.__point = None
-    
-    
+
+
     def elements(self):
         """
         Return a list containing the one point that implicitly represents
         the whole group.
-        
+
         Use it, for example, to elegantly perform an operation on all l-torsion
         points:
         @code
@@ -113,8 +113,8 @@ class LTorsionGroup( metaclass=template("_elliptic_curve") ):
         if not self.__point:
             self.__init_point()
         return [ self.__point ]
-    
-    
+
+
     def torsion(self):
         """
         Return the group's torsion, that is, l for the l-torsion group.
@@ -126,12 +126,12 @@ class LTorsionGroup( metaclass=template("_elliptic_curve") ):
         """
         Create the point that implicitly represents the whole l-torsion group
         and store it in the cache.
-        
+
         Calling the method has no effect if the point already exists.
         """
         if self.__point:
             return
-        
+
         # R = F[x] / (y**2 - x**3 - A*x - B)
         R = self._division_polynomial_list().curve_polynomials()
         # The n-th division polynomial
@@ -140,26 +140,26 @@ class LTorsionGroup( metaclass=template("_elliptic_curve") ):
         # T = ( F[x] / (y**2 - x**3 - A*x - B) ) / psi(l)
         S = QuotientRing( R, psi )
         T = FractionField( S )
-        
+
         A, B = R.curve().parameters()
-        
+
         # Polynomials x and y on the curve interpreted
         # as elements of the field of fractions
         x = T( R( (0, 1), 0 ) )
         y = T( R( 0     , 1 ) )
-        
+
         self.__point = EllipticCurve( T, A, B )( x, y )
 
 
-    #- Class Methods----------------------------------------------------------- 
-    
+    #- Class Methods-----------------------------------------------------------
+
     @classmethod
     def curve(cls):
         """
         Return the elliptic curve that was used to initialize the template.
         """
         return cls._elliptic_curve
-    
+
     @classmethod
     def _division_polynomial_list(cls):
         """
