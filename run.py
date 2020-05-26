@@ -1,8 +1,9 @@
 from participant import *
 from gfelement import *
+from .pythonSchoof.reduced_computation_schoof_algorithm import *
 
 if __name__ == "__main__":
-    print("\nFIELD 31")
+    """print("\nFIELD 31")
     gf31 = GaloisField(31)
     gf31[4].print()
     gf31[10].print()
@@ -23,12 +24,17 @@ if __name__ == "__main__":
     el2_10 = GFElement(2,4,[1, 1, 1, 0],[1, 1, 0, 0, 1])
     el2_4.print()
     el2_10.print()
-    (el2_4 - el2_10).print()
+    (el2_4 - el2_10).print()"""
 
-    """gf = GaloisField(17)
-    ec = EllipticCurve(gf[0],gf[7],gf)
-    generator = Point(gf[15],gf[13])
+    """ Generate the curve over a finite field"""
+    field_prime = 29
+    gf = GaloisField(field_prime)
+    ec = EllipticCurve(-gf[1],gf[1],gf)
+    """ Get a generator of a large subgroup of the curve (h=2 or h=3) """
+    curve_order = reduced_computation_schoof_algorithm(field_prime, -1, 1)
+    print(curve_order)
+    """ Generate 2 random independent points P and Q"""
 
-    A = Participant(ec, generator, 18)
-    B = Participant(ec, generator, 18)
-    C = Participant(ec, generator, 18)"""
+    #A = Participant(ec, generator, 18)
+    #B = Participant(ec, generator, 18)
+    #C = Participant(ec, generator, 18)

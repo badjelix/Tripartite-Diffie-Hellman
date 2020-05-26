@@ -3,6 +3,7 @@
 import math
 from pynitefields import *
 
+""" Definition of Points and of the Elliptic Curve itself """
 class Point:
     def __init__(self,x=0,y=0):
         self.x = x
@@ -20,7 +21,6 @@ class Point:
             print("Y: ", end ="")
             self.y.print()
 
-
 class PointAtInfinity(Point):
     def __init__(self):
         super().__init__()
@@ -28,25 +28,23 @@ class PointAtInfinity(Point):
     def isInfinity(self):
         return True
 
-
 class EllipticCurve:
     def __init__(self,a,b,gf):
         self.a = a
         self.b = b
         self.gf = gf
-        self.discriminant = -16 * (4 * a*a*a + 27 * b*b)
-        if not self.isSmooth():
-            raise Exception("The curve %s is not smooth!" % self)
+        #self.discriminant = -16 * (4 * a*a*a + 27 * b*b)
+        #if not self.isSmooth():
+        #    raise Exception("The curve %s is not smooth!" % self)
 
-    def isSmooth(self):
-        return self.discriminant != self.gf[0]
+    #def isSmooth(self):
+    #    return self.discriminant != self.gf[0]
 
-    def testPoint(self, x, y):
-        return y*y == x*x*x + self.a * x + self.b
+    #def testPoint(self, x, y):
+    #    return y*y == x*x*x + self.a * x + self.b
 
 
-#Elliptic curve operations
-
+""" Elliptic curve operations """
 def negatePoint(p):
     return Point(p.x, p.y - 2 * p.y)
 
@@ -64,9 +62,6 @@ def addPoint(p, q, curve):
     x = slope ** 2 - p.x - q.x
     y = slope * (p.x - x) - p.y
     return Point(x,y)
-
-def getBinary(integer):
-    return [int(n) for n in bin(integer)[2:]]
 
 def doubleAndAdd(p, n, curve):
     binary = getBinary(n)
@@ -126,6 +121,9 @@ def WeilPairing(p, q, s, order, curve):
 
 
 ## Main and other functions
+
+def getBinary(integer):
+    return [int(n) for n in bin(integer)[2:]]
 
 if __name__ == "__main__":
     gf = GaloisField(2,8,[1, 0, 1, 1, 1, 0, 0, 0, 1])

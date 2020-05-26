@@ -30,6 +30,7 @@ class GFElement():
         return self + el
 
 
+
     """ Subtraction """
     def __sub__(self, el):
         # Make sure we're in the same field!
@@ -43,6 +44,45 @@ class GFElement():
         else:
             new_coefs = [(self.coefs[i] - el.coefs[i]) % self.p for i in range(0, self.n)]
             return GFElement(self.p, self.n, new_coefs, self.irre_poly)
+
+
+
+    """ Multiplication """
+    def __mul__(self, el):
+        # Multiplication by a constant (must be on the right!)
+        if isinstance(el, int):
+            return GFieldElement(self.p, self.n, [(el * exp_coef) % self.p for exp_coef in self.coefs])
+        # Multiplication by another FieldElement
+        elif isinstance(el, GFieldElement):
+            # Make sure we're in the same field!
+            if (self.p != el.p) or (self.n != el.n):
+                print("Error, cannot multiply elements from different fields!")
+                return None
+
+            # Prime case
+            if self.n == 1:
+                return GFieldElement(self.p, self.n, [(self.coefs[0] * el.coefs[0]) % self.p])
+            # Power of prime case
+            else:
+                # Multiplying by 0
+                zeros = [0] * self.n
+                if el.prim_power == zeros or self.prim_power == zeros:
+                    return GFieldElement(self.p, self.n, zeros)
+                else:
+                    new_exp = self.prim_power + el.prim_power # New exponent
+                    # the last field element is 1.
+                    if new_exp > self.dim - 1:
+                        new_exp = ((new_exp - 1) % (self.dim - 1)) + 1
+                    new_exp_coefs = [int(x) for x in self.field_list[new_exp].split(',')]
+                    return GFieldElement(self.p, self.n, new_exp_coefs, self.field_list, self.is_sdb, self.sdb_field_list)
+                    new_coefs = [int(x) for x in self.field_list[new_exp].split(',')]
+                    return GFieldElement(self.p, self.n, new_coefs, self.field_list, self.is_sdb, self.sdb_field_list)
+        else:
+            raise TypeError("Unsupported operator")
+
+    """ Multiplication from the left """
+    def __rmul__(self, el): # Implementing rmul so we can multiply on the left by integers
+        return self * el
 
 
     """ Print out information about the element."""
