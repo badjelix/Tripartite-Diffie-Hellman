@@ -1,6 +1,6 @@
 from participant import *
 from gfelement import *
-from .pythonSchoof.reduced_computation_schoof_algorithm import *
+from Crypto.pythonSchoof.reduced_computation_schoof_algorithm import *
 
 if __name__ == "__main__":
     """print("\nFIELD 31")

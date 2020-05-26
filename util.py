@@ -76,10 +76,22 @@ def doubleAndAdd(p, n, curve):
     return r
 
 
+def squareAndMultiply(x, n):
+    binary = getBinary(n)
+    result = x / x
+    i = len(binary) - 1
+    while i >= 0:
+        if binary[i] == 1:
+            result *= x
+        x *= x
+        i -= 1
+    return result
+
+
 # Miller Algorithm
 
 def computeFunction(p, q, value, curve):
-    if (p.x == q.x and p.y == q.y - 2 * q.y) or p.isInfinity() or q.isInfinity():
+    if p.isInfinity() or q.isInfinity() or (p.x == q.x and p.y == q.y - 2 * q.y):
         if p.isInfinity():
             return value.x - q.x
         else:
@@ -95,8 +107,8 @@ def Miller(p, order, value, curve):
     res = 1
     v = p
     binary = getBinary(order)
-    i = len(binary) - 2
-    while i >= 0:
+    i = 1
+    while i < len(binary):
         dv = addPoint(v, v, curve)
         res = res ** 2 * computeFunction(v, v, value, curve) #/ computeFunction(dv, negatePoint(dv), value, curve)
         v = dv
@@ -104,7 +116,7 @@ def Miller(p, order, value, curve):
             vp = addPoint(v, p, curve)
             res = res * computeFunction(v, p, value, curve) #/ computeFunction(vp, negatePoint(vp), value, curve)
             v = vp
-        i = i - 1
+        i = i + 1
     return res
 
 def WeilPairing(p, q, s, order, curve):
@@ -113,13 +125,37 @@ def WeilPairing(p, q, s, order, curve):
     c = Miller(q,order,addPoint(p, negatePoint(s), curve),curve)
     d = Miller(q,order,negatePoint(s),curve)
 
-    print(a)
-    print(b)
-    print(c)
-    print(d)
     return a * d / (b * c)
 
+def TatePairing(p, q, order, curve, mod, n):
+    a = Miller(p, order, q, curve)
+    res = squareAndMultiply(a, ((mod ** n - 1) // order))
+    return res
 
+if __name__ == "__main__":
+    prime = 47
+    poly = [5,0,-4,0,1]
+    ec = EllipticCurve(FieldElement(prime, 4, [21,0,0,0], irre_poly=poly) ,FieldElement(prime, 4, [15,0,0,0], irre_poly=poly))
+    p = Point(FieldElement(prime,4,[45,0,0,0], irre_poly=poly),FieldElement(prime,4,[23,0,0,0],irre_poly=poly))
+    q = Point(FieldElement(prime,4,[29,0,31,0], irre_poly=poly),FieldElement(prime,4,[0,11,0,35],irre_poly=poly))
+    print(TatePairing(p,q,17,ec, prime, 4))
+
+    prime = 23
+    poly = [1,0,1]
+    ec = EllipticCurve(FieldElement(prime, 2, [-1,0], irre_poly=poly) ,FieldElement(prime, 2, [0,0], irre_poly=poly))
+    p = Point(FieldElement(prime,2,[2,0], irre_poly=poly),FieldElement(prime,2,[11,0],irre_poly=poly))
+    q = Point(FieldElement(prime,2,[21,0], irre_poly=poly),FieldElement(prime,2,[0,12],irre_poly=poly))
+    s = Point(FieldElement(prime,2,[18,10], irre_poly=poly),FieldElement(prime,2,[13,13],irre_poly=poly))
+    print(WeilPairing(p,q,s,3,ec))
+
+    gf = GaloisField(1009)
+    p = Point(gf[8],gf[703])
+    q = Point(gf[49],gf[20])
+    s = Point(gf[0],gf[0])
+    ec = EllipticCurve(gf[37],gf[0])
+    print(WeilPairing(p,q,s,7,ec))
+
+"""
 ## Main and other functions
 
 def getBinary(integer):
@@ -133,3 +169,4 @@ if __name__ == "__main__":
     ec = EllipticCurve(gf[0],gf[7])
 
     doubleAndAdd(p,15,ec).printPoint()
+    """

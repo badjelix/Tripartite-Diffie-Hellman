@@ -13,5 +13,6 @@ if __name__ == "__main__":
     ec = EllipticCurve(FieldElement(prime,2,[1,0], irre_poly=poly),FieldElement(prime,2,[0,0], irre_poly=poly))
     order = 93917583375891588584754753148372137203682206097
 
-    print(WeilPairing(p,q,s,order,ec))
-#    print(WeilPairing(p,p,s,order,ec))
+    print(WeilPairing(p,q,s,order,ec)) 
+    print(TatePairing(addPoint(p, negatePoint(q), ec),addPoint(p, q, ec),order,ec, prime, 2))
+
