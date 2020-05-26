@@ -1,6 +1,6 @@
 from participant import *
 from gfelement import *
-from pythonSchoof import *
+from pythonSchoof.reduced_computation_schoof import *
 
 if __name__ == "__main__":
     """print("\nFIELD 31")
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     gf = GaloisField(field_prime)
     ec = EllipticCurve(gf[28],gf[1],gf)
     """ Get a generator of a large subgroup of the curve (h=2 or h=3) """
-    curve_order = reduced_computation_schoof_algorithm(field_prime, -1, 1)
+    curve_order = schoof.reduced_computation_schoof_algorithm(field_prime, 28, 1)
     print(curve_order)
     """ Generate 2 random independent points P and Q"""
 
