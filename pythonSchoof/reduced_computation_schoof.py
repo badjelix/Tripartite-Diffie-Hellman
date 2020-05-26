@@ -251,12 +251,7 @@ from pythonSchoof.support.running import AlgorithmRunner
 def reduced_computation_schoof_algorithm( p, A, B, output=sys.stdout ):
     p, A, B = int(p), int(A), int(B)
 
-    message = "Counting points of y^2 = x^3 + {A}x + {B} over GF<{p}>: "
-    print( message.format( p=p, A=A, B=B ), end="", file=output )
-    output.flush()
-
     order = p + 1 - frobenius_trace( EllipticCurve( FiniteField(p), A, B ) )
-    print( order, file=output )
     return order
 
 
