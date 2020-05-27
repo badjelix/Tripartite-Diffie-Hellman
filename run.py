@@ -17,18 +17,24 @@ if __name__ == "__main__":
     S = Point(FieldElement([0,0], p, k, irreducible_poly), FieldElement([0,0], p, k, irreducible_poly))
 
     """ Create participants (each of them generates their private keys and public values) """
-    A = Participant('A', ec, P, Q, order)
-    B = Participant('B', ec, P, Q, order)
-    C = Participant('C', ec, P, Q, order)
+    print("A is generating his private and public keys")
+    A = Participant('A', ec, P, Q, S, order)
+    print("B is generating his private and public keys")
+    B = Participant('B', ec, P, Q, S, order)
+    print("C is generating his private and public keys")
+    C = Participant('C', ec, P, Q, S, order)
 
     """ Broadcast phase: each participant sends their public values to the
         other two in a single message """
     # A sends public keys
+    print("A is broadcasting his public values")
     B.getPublicKeys('A', A.sendPublicKeys())
     C.getPublicKeys('A', A.sendPublicKeys())
     # B sends public keys
+    print("B is broadcasting his public values")
     A.getPublicKeys('B', B.sendPublicKeys())
     C.getPublicKeys('B', B.sendPublicKeys())
     # C sends public keys
+    print("C is broadcasting his public values")
     A.getPublicKeys('C', C.sendPublicKeys())
     B.getPublicKeys('C', C.sendPublicKeys())
