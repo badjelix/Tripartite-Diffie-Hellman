@@ -62,6 +62,9 @@ def addPoint(p, q, curve):
     y = slope * (p.x - x) - p.y
     return Point(x,y)
 
+def getBinary(integer):
+    return [int(n) for n in bin(integer)[2:]]
+
 def doubleAndAdd(p, n, curve):
     binary = getBinary(n)
     r = PointAtInfinity()
@@ -153,19 +156,3 @@ if __name__ == "__main__":
     s = Point(gf[0],gf[0])
     ec = EllipticCurve(gf[37],gf[0])
     print(WeilPairing(p,q,s,7,ec))
-
-"""
-## Main and other functions
-
-def getBinary(integer):
-    return [int(n) for n in bin(integer)[2:]]
-
-if __name__ == "__main__":
-    gf = GaloisField(2,8,[1, 0, 1, 1, 1, 0, 0, 0, 1])
-    p = Point(gf[9],gf[15])
-    #q = Point(gf[49],gf[20])
-    #s = Point(gf[0],gf[0])
-    ec = EllipticCurve(gf[0],gf[7])
-
-    doubleAndAdd(p,15,ec).printPoint()
-    """

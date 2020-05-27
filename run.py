@@ -1,42 +1,20 @@
 from participant import *
-from gfelement import *
-from pythonSchoof.reduced_computation_schoof import *
-from pythonSchoof.naive_schoof import *
 
 if __name__ == "__main__":
-    """print("\nFIELD 31")
-    gf31 = GaloisField(31)
-    gf31[4].print()
-    gf31[10].print()
-    (gf31[4] - gf31[10]).print()
-    print("AGORA OS A SERIO")
-    el31_4 = GFElement(31,1,[4])
-    el31_10 = GFElement(31,1,[10])
-    el31_4.print()
-    el31_10.print()
-    (el31_4 - el31_10).print()
-    print("\nFIELD 2^4")
-    gf2 = GaloisField(2,4,[1, 1, 0, 0, 1])
-    gf2[4].print()
-    gf2[10].print()
-    (gf2[4] - gf2[10]).print()
-    print("AGORA OS A SERIO")
-    el2_4 = GFElement(2,4,[1, 1, 0, 0],[1, 1, 0, 0, 1])
-    el2_10 = GFElement(2,4,[1, 1, 1, 0],[1, 1, 0, 0, 1])
-    el2_4.print()
-    el2_10.print()
-    (el2_4 - el2_10).print()"""
 
     """ Generate the curve over a finite field"""
-    field_prime = 2**128 - 2**97 - 1
-    a = 0xD6031998D1B3BBFEBF59CC9BBFF9AEE1
-    b = 0x5EEEFCA380D02919DC2C6558BB6D8A5D
-    ec = EllipticCurve(a,b)
-    """ Get a generator of a large subgroup of the curve (h=2 or h=3) """
-    oder = reduced_computation_schoof_algorithm(field_prime,a,b)
-    print(oder)
-    """ Generate 2 random independent points P and Q"""
+    prime = 482677778157700435350444108563600470389539607291135742953085077414483299007817968457323051999107203153032937333023591271636050696817523671646492380723773419011
+    k = 2
+    irreducible_poly = [1,0,1]
+    ec = EllipticCurve(FieldElement(prime, 2, [1,0], irre_poly=irreducible_poly), FieldElement(prime, 2, [0,0], irre_poly=irreducible_poly))
 
-    #A = Participant(ec, generator, 18)
-    #B = Participant(ec, generator, 18)
-    #C = Participant(ec, generator, 18)
+    """ Get2 random independent points P and Q with the same order """
+    P = Point(FieldElement(prime, 2, [44190300200219570605979955052143576952357255515115686851170191818316842095486907625480884395317616863401927551006066189692708095924815897927498508535823262371,0],irre_poly=irreducible_poly),FieldElement(prime,2,[26090947680860922395540330613428690525406329616428470738073031338841260885477380307130420220342204765301865163480203757570223664606235381540801075563801118751,0],irre_poly=irreducible_poly))
+    Q = Point(FieldElement(prime, 2, [417418390151798179157327683814659014460849518350508436411447781417311430237331232958577456865429161040089806217226455983348248260335272068783343983410685645620, 0],irre_poly=irreducible_poly), FieldElement(prime,2,[0,85984079438328066829535503806402848425113755688042614534609435398882015068450504353865472815063531531657210019063972911218641810155964304683033635085838106425],irre_poly=irreducible_poly))
+    order = 593917583375891588584754753148372137203682206097
+    S = Point(FieldElement(prime, 2, [0,0], irre_poly=irreducible_poly), FieldElement(prime, 2, [0,0], irre_poly=irreducible_poly))
+
+    """ Create participants (each of them generates their private keys and public values) """
+    A = Participant('A', ec, P, Q, order)
+    B = Participant('B', ec, P, Q, order)
+    C = Participant('C', ec, P, Q, order)
