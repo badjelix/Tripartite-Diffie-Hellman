@@ -1,4 +1,4 @@
-#!/usr/bin/python                                                                  
+#!/usr/bin/python
 
 import math
 import numpy
@@ -59,7 +59,7 @@ def polymul(a, b, irre, mod):
     new_exp_coefs = [0] * (len(a) + len(b) + 1)
     for e in range(len(a)):
         for i in range(len(b)):
-            new_exp_coefs[e + i] = (new_exp_coefs[e + i] + a[e] * b[i]) % mod 
+            new_exp_coefs[e + i] = (new_exp_coefs[e + i] + a[e] * b[i]) % mod
     _ , r = polydiv(new_exp_coefs, irre, mod)
     return r[:degree(irre)]
 
@@ -100,14 +100,14 @@ class FieldElement():
 
         Args:
             p (int): The prime order of the field this element is in.
-            n (int): The degree of the field extension for the field this 
+            n (int): The degree of the field extension for the field this
                      element is in.
             exp_coefs (list): The set of expansion coefficients of this element
                               in terms of some basis.
 
         Attributes:
             p (int): The prime order of the field this element is in.
-            n (int): The degree of the field extension for the field this 
+            n (int): The degree of the field extension for the field this
                      element is in.
             dim (int): The dimension of the field, :math:`p^n`.
             exp_coefs (list): The set of expansion coefficients of this element
@@ -124,7 +124,7 @@ class FieldElement():
         # the coefficient is just the value
         self.exp_coefs = exp_coefs
         self.irre_poly = irre_poly
-      
+
 
     def __add__(self, el):
         """ Addition.
@@ -152,14 +152,14 @@ class FieldElement():
 
 
     def __radd__(self, el):
-        """ Add a field element to the left of this one. 
-        
+        """ Add a field element to the left of this one.
+
             Addition in finite fields is commutative so this works just like
-            the normal add. This is implemented so we can use 'sum' 
+            the normal add. This is implemented so we can use 'sum'
             over lists of FieldElement.
         """
         return self + el
-    
+
 
     def __sub__(self, el):
         """ Addition.
@@ -189,7 +189,7 @@ class FieldElement():
     def __mul__(self, el):
         """ Multiplication.
 
-            Args: 
+            Args:
                 el (int or FieldElement): An element to multiply with this one.
                       Can also pass an integer value.
 
@@ -225,7 +225,7 @@ class FieldElement():
     def __rmul__(self, el): # Implementing rmul so we can multiply on the left by integers
         """ Multiplication from the left. """
         return self * el
- 
+
 
     def __truediv__(self, el):
         """ Division.
@@ -238,7 +238,7 @@ class FieldElement():
                 An element to divide this one by.
 
             Returns:
-                This element / el. Returns None if el = 0. 
+                This element / el. Returns None if el = 0.
         """
         if isinstance(el, FieldElement):
             if (self.p != el.p) or (self.n != el.n):
@@ -292,13 +292,13 @@ class FieldElement():
 
     def __eq__(self, el):
         """ Test equality of two field elements.
-            
+
             Args:
                 el (FieldElement): An element to compare with.
 
             Returns:
-                True if the field dimensions (:math:`p`, :math:`n`) are the 
-                same, the basis expansions are the same, and the list of 
+                True if the field dimensions (:math:`p`, :math:`n`) are the
+                same, the basis expansions are the same, and the list of
                 field elements is the same. False otherwise.
         """
         if (self.p != el.p) or (self.n != el.n):
@@ -323,7 +323,7 @@ class FieldElement():
                 True if this element is 'less' by the conditions defined above.
                 False otherwise.
         """
-        if self.n == 1: 
+        if self.n == 1:
             if self.exp_coefs < el.exp_coefs:
                 return True
             else:
@@ -366,7 +366,7 @@ class FieldElement():
                 return
 
             return FieldElement(inverse(self.exp_coefs, self.p), self.p)
-        
+
         else: # Power of prime case
             return FieldElement(polyinverse(self.exp_coefs, self.irre_poly, self.p), self.p, self.n, self.irre_poly)
 
@@ -374,3 +374,7 @@ class FieldElement():
     def print(self):
         """ Print out information about the element."""
         print(self.exp_coefs)
+
+    def toString(self):
+        """ Return string with information about the element."""
+        return str(self.exp_coefs)

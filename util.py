@@ -12,14 +12,11 @@ class Point:
     def isInfinity(self):
         return False
 
-    def printPoint(self):
+    def toString(self):
         if(self.isInfinity()):
-            print("Point at Infinity")
+            return "Point at Infinity"
         else:
-            print("X: ", end ="")
-            self.x.print()
-            print("Y: ", end ="")
-            self.y.print()
+            return "X: " + self.x.toString() + "\nY: " + self.y.toString()
 
 class PointAtInfinity(Point):
     def __init__(self):
@@ -138,7 +135,7 @@ def TatePairing(p, q, order, curve, mod, n):
     return res
 
 if __name__ == "__main__":
-    
+
     prime = 47
     poly = [5,0,-4,0,1]
     ec = EllipticCurve(FieldElement([21,0,0,0],prime,4,poly),FieldElement([15,0,0,0],prime,4,poly))
