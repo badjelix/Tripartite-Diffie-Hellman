@@ -50,9 +50,11 @@ def frobenius_trace(curve):
                is the size of the finite field over which the curve was defined.
     """
     trace_congruences = []
-    search_range = hasse_frobenius_trace_range( curve.field() )
+    search_range_tuple = hasse_frobenius_trace_range( curve.field() )
+    search_range = range(search_range_tuple[0],search_range_tuple[1])
+    len_range = ((search_range_tuple[1] - search_range_tuple[0] - 1) // 1 + 1)
     torsion_primes = greedy_prime_factors(
-                                 len(search_range),
+                                 len_range,
                                  curve.field().characteristic()
                              )
 
@@ -191,7 +193,7 @@ def hasse_frobenius_trace_range(field):
     """
     # This only depends on the field and holds for any curve over it.
     l = 2 * ceil( sqrt( field.size() ) )
-    return range( -l, l+1 )
+    return (-l, l+1)
 
 
 from pythonSchoof.support.primes import primes_range, inverse_primorial
