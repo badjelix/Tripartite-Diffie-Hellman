@@ -9,18 +9,19 @@ class Participant:
         """ Name from set {'A','B','C'} of the participant """
         self.name = name
         """ Dictionary to store the public values from different participants """
-        self.publicValues = {}
+        self.publicKeys = {}
         """ Generate a private key: integer k s.t. 1 < k < order - 1 """
         self.privateKey = random.randint(1,order)
         """ Generate public values to broadcast to other 2 participants """
-        self.publicValues['P_' + name] = doubleAndAdd(P, self.privateKey, curve)
-        self.publicValues['Q_' + name] = doubleAndAdd(Q, self.privateKey, curve)
+        self.publicKeys['P_' + name] = doubleAndAdd(P, self.privateKey, curve)
+        self.publicKeys['Q_' + name] = doubleAndAdd(Q, self.privateKey, curve)
 
 
-        """s = doubleAndAdd(generator, random.randint(1,order), curve)
+    """ Sends a tuple with the participant's public values """
+    def sendPublicKeys(self):
+        return (self.publicKeys['P_' + name], self.publicKeys['Q_' + name])
 
-        while((s == self.P) or (s == self.Q) or (s == Point(0,0))):
-            s.printPoint()
-            s = doubleAndAdd(generator, random.randint(1,order), curve)
-
-        weil = WeilPairing(self.P, self.Q, s, order, curve)"""
+    """ Stores public values from another participant """
+    def getPublicKeys(self, participant, keys):
+        self.publicKeys['P_' + participant] = keys[0]
+        self.publicKeys['Q_' + participant] = keys[1]
