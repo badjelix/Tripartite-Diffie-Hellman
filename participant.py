@@ -20,7 +20,7 @@ class Participant:
 
     """ Sends a tuple with the participant's public values """
     def sendPublicKeys(self):
-        return (self.publicKeys['P_' + name], self.publicKeys['Q_' + name])
+        return (self.publicKeys['P_' + self.name], self.publicKeys['Q_' + self.name])
 
     """ Stores public values from another participant """
     def getPublicKeys(self, participant, keys):
