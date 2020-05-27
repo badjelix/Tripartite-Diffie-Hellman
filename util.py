@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import math
-from pynitefields import *
+from fieldelement import *
 
 """ Definition of Points and of the Elliptic Curve itself """
 class Point:
@@ -90,6 +90,9 @@ def squareAndMultiply(x, n):
     return result
 
 
+def getBinary(integer):
+    return [int(n) for n in bin(integer)[2:]]
+
 # Miller Algorithm
 
 def computeFunction(p, q, value, curve):
@@ -135,24 +138,24 @@ def TatePairing(p, q, order, curve, mod, n):
     return res
 
 if __name__ == "__main__":
+    
     prime = 47
     poly = [5,0,-4,0,1]
-    ec = EllipticCurve(FieldElement(prime, 4, [21,0,0,0], irre_poly=poly) ,FieldElement(prime, 4, [15,0,0,0], irre_poly=poly))
-    p = Point(FieldElement(prime,4,[45,0,0,0], irre_poly=poly),FieldElement(prime,4,[23,0,0,0],irre_poly=poly))
-    q = Point(FieldElement(prime,4,[29,0,31,0], irre_poly=poly),FieldElement(prime,4,[0,11,0,35],irre_poly=poly))
-    print(TatePairing(p,q,17,ec, prime, 4))
+    ec = EllipticCurve(FieldElement([21,0,0,0],prime,4,poly),FieldElement([15,0,0,0],prime,4,poly))
+    p = Point(FieldElement([45,0,0,0],prime,4,poly),FieldElement([23,0,0,0],prime,4,poly))
+    q = Point(FieldElement([29,0,31,0],prime,4,poly),FieldElement([0,11,0,35],prime,4,poly))
+    print(TatePairing(p,q,17,ec, prime, 4)) #expected: [39, 45, 43, 33]
 
     prime = 23
     poly = [1,0,1]
-    ec = EllipticCurve(FieldElement(prime, 2, [-1,0], irre_poly=poly) ,FieldElement(prime, 2, [0,0], irre_poly=poly))
-    p = Point(FieldElement(prime,2,[2,0], irre_poly=poly),FieldElement(prime,2,[11,0],irre_poly=poly))
-    q = Point(FieldElement(prime,2,[21,0], irre_poly=poly),FieldElement(prime,2,[0,12],irre_poly=poly))
-    s = Point(FieldElement(prime,2,[18,10], irre_poly=poly),FieldElement(prime,2,[13,13],irre_poly=poly))
-    print(WeilPairing(p,q,s,3,ec))
+    ec = EllipticCurve(FieldElement([-1,0],prime,2,poly),FieldElement([0,0],prime,2,poly))
+    p = Point(FieldElement([2,0],prime,2,poly),FieldElement([11,0],prime,2,poly))
+    q = Point(FieldElement([21,0],prime,2,poly),FieldElement([0,12],prime,2,poly))
+    s = Point(FieldElement([18,10],prime,2,poly),FieldElement([13,13],prime,2,poly))
+    print(WeilPairing(p,q,s,3,ec)) #expected: [11, 15]
 
-    gf = GaloisField(1009)
-    p = Point(gf[8],gf[703])
-    q = Point(gf[49],gf[20])
-    s = Point(gf[0],gf[0])
-    ec = EllipticCurve(gf[37],gf[0])
-    print(WeilPairing(p,q,s,7,ec))
+    p = Point(FieldElement(8,1009),FieldElement(703,1009))
+    q = Point(FieldElement(49,1009),FieldElement(20,1009))
+    s = Point(FieldElement(0,1009),FieldElement(0,1009))
+    ec = EllipticCurve(FieldElement(37,1009),FieldElement(0,1009))
+    print(WeilPairing(p,q,s,7,ec)) #expected: 105
