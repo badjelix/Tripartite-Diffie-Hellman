@@ -13,6 +13,7 @@ class Participant:
         """ Generate a private key: integer k s.t. 1 < k < order - 1 """
         self.privateKey = random.randint(1,order)
         """ Generate public values to broadcast to other 2 participants """
+        # FIXME Points cant be points at infinity, right?
         self.publicKeys['P_' + name] = doubleAndAdd(P, self.privateKey, curve)
         self.publicKeys['Q_' + name] = doubleAndAdd(Q, self.privateKey, curve)
 
