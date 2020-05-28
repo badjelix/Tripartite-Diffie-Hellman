@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
+from util import *
 import math
 import random
-from util import *
 import hashlib
+import itertools
 
 class Participant:
     def __init__(self, name, curve, P, Q, S, order):
@@ -53,3 +54,14 @@ class Participant:
         self.publicKeys['Q_' + participant] = keys[1]
         if len(self.publicKeys) == 6:
             self.sharedKey = self.generateSharedKey()
+
+    """ Ciphers message and returns it """
+    def sendMessage(self, message):
+        xorred = ''.join([chr(ord(x)^ord(y)) for x, y in zip(message, itertools.cycle(self.sharedKeyHash))])
+        return xorred
+
+    """ Deciphers message and prints it """
+    def receiveMessage(self, message):
+        print("Got this ciphered message: " + message)
+        xorred = ''.join([chr(ord(x)^ord(y)) for x, y in zip(message, itertools.cycle(self.sharedKeyHash))])
+        print("Deciphering I get: " + xorred)

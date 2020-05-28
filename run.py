@@ -38,3 +38,9 @@ if __name__ == "__main__":
     print("C is broadcasting his public values")
     A.getPublicKeys('C', C.sendPublicKeys())
     B.getPublicKeys('C', C.sendPublicKeys())
+
+    """ Test generated key! """
+    print("Participant A is going to broadcast a message to the other participants, type it here: (max 64 chars)")
+    message = input()
+    B.receiveMessage(A.sendMessage(message))
+    C.receiveMessage(A.sendMessage(message))
