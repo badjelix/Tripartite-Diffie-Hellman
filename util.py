@@ -29,15 +29,6 @@ class EllipticCurve:
     def __init__(self,a,b):
         self.a = a
         self.b = b
-        #self.discriminant = -16 * (4 * a*a*a + 27 * b*b)
-        #if not self.isSmooth():
-        #    raise Exception("The curve %s is not smooth!" % self)
-
-    #def isSmooth(self):
-    #    return self.discriminant != self.gf[0]
-
-    #def testPoint(self, x, y):
-    #    return y*y == x*x*x + self.a * x + self.b
 
 
 """ Elliptic curve operations """

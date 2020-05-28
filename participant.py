@@ -62,6 +62,6 @@ class Participant:
 
     """ Deciphers message and prints it """
     def receiveMessage(self, message):
-        print("Got this ciphered message: " + message)
+        print("I am " + self.name + " and I got this ciphered message: " + message)
         xorred = ''.join([chr(ord(x)^ord(y)) for x, y in zip(message, itertools.cycle(self.sharedKeyHash))])
         print("Deciphering I get: " + xorred)
