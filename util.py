@@ -75,20 +75,6 @@ def doubleAndAdd(p, n, curve):
     return r
 
 
-def squareAndMultiply(x, n):
-    binary = getBinary(n)
-    result = x / x
-    i = len(binary) - 1
-    while i >= 0:
-        if binary[i] == 1:
-            result *= x
-        x *= x
-        i -= 1
-    return result
-
-
-def getBinary(integer):
-    return [int(n) for n in bin(integer)[2:]]
 
 # Miller Algorithm
 

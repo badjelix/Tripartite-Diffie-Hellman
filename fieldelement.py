@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import math
-import numpy
-
+from sympy.polys.galoistools import gf_irreducible, gf_irreducible_p
+from sympy.polys.domains import ZZ
 
 def xgcd(a, b):
     """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
@@ -86,13 +86,97 @@ def polydiv(poly, div, mod):
     quotient = [0] * len(poly)
     while degree(poly) >= degree(div) and poly != [0] * len(poly):
         temp = [0] * (degree(poly) - degree(div)) + div
-        new_poly = []
         inv = inverse(temp[degree(poly)], mod)
         quotient[degree(poly) - degree(div)] = (quotient[degree(poly) - degree(div)] + inv * poly[degree(poly)]) % mod
         for e in range(len(temp)):
             temp[e] = temp[e] * inv * poly[degree(poly)] % mod
         poly = polysub(poly, temp, mod)
     return quotient, poly
+
+def getBinary(integer):
+    return [int(n) for n in bin(integer)[2:]]
+
+def squareAndMultiply(x, n, p = 0):
+    binary = getBinary(n)
+    if p != 0 or isinstance(x, int):
+        result = 1
+    else:
+        result = x / x
+    i = len(binary) - 1
+    while i >= 0:
+        if binary[i] == 1:
+            if p != 0:
+                result = result * x % p
+            else:
+                result = result * x
+        if p != 0:
+            x = x * x % p
+        else:
+            x = x * x
+        i -= 1
+    return result
+
+"""
+def degreedict(poly):
+    maximum = 0
+    for power in poly:
+        if power > maximum and poly[power] != 0:
+            maximum = power
+    return maximum
+
+def copydict(poly, power):
+    res = {}
+    for p in poly:
+        res[p+power] = poly[p]
+    return res
+
+def polysubdict(a, b, mod):
+    res = {}
+    for i in a:
+        if i not in b:
+            res[i] = a[i]
+        else:
+            res[i] = (a[i] - b[i]) % mod
+            if res[i] == 0:
+                del res[i]
+    for i in b:
+        if i not in a and b[i] != 0:
+            res[i] = (-b[i]) % mod
+    return res
+
+def nullpolydict(poly):
+    for p in poly:
+        if poly[p] != 0:
+            return False
+    return True
+
+def polydivdict(poly, div, mod):
+    quotient = {}
+    polydegree = degreedict(poly)
+    divdegree = degreedict(div)
+    while polydegree >= divdegree and not nullpolydict(poly):
+        temp = copydict(div, polydegree - divdegree)
+        inv = inverse(temp[polydegree], mod)
+        if polydegree - divdegree in quotient:
+            quotient[polydegree - divdegree] = (quotient[polydegree - divdegree] + inv * poly[polydegree]) % mod
+        else:
+            quotient[polydegree - divdegree] = (inv * poly[polydegree]) % mod
+
+        if quotient[polydegree - divdegree] == 0:
+            del quotient[polydegree - divdegree] 
+        
+        for p in temp:
+            temp[p] = temp[p] * inv * poly[polydegree] % mod
+        poly = polysubdict(poly, temp, mod)
+        polydegree = degreedict(poly)
+        print(poly)
+    return quotient, poly
+
+"""
+
+def getIrreducible(p, n):
+    return gf_irreducible(n, p, ZZ)
+
 
 
 class FieldElement():
@@ -117,13 +201,14 @@ class FieldElement():
     def __init__(self, exp_coefs, p, n = 1, irre_poly = []):
         self.p = p
         self.n = n
-        self.dim = int(pow(p, n))
 
         # Set the expansion coefficients.
         # If we're in a prime field, the basis is 1, and
         # the coefficient is just the value
         self.exp_coefs = exp_coefs
         self.irre_poly = irre_poly
+        #if irre_poly != [] and not gf_irreducible_p(irre_poly, p, ZZ):
+        #    raise ValueError("polynomial not irreducible")
 
 
     def __add__(self, el):
@@ -280,15 +365,10 @@ class FieldElement():
         """
         # Prime case
         if self.n == 1:
-            return FieldElement(int(self.exp_coefs ** exponent) % self.p, self.p)
+            return FieldElement(squareAndMultiply(self.exp_coefs, exponent, self.p), self.p)
         # Power of prime case
         else:
-            poly = numpy.polynomial.polynomial.polypow(numpy.array(self.exp_coefs), exponent)
-            poly = [i for i in poly]
-            if len(poly) < len(self.irre_poly) - 1:
-                poly += [0] * (len(self.irre_poly) - len(poly) - 1)
-            _ , r = polydiv(poly, self.irre_poly, self.p)
-            return FieldElement(r[:degree(self.irre_poly)], self.p, self.n, self.irre_poly)
+            return squareAndMultiply(self, exponent)
 
     def __eq__(self, el):
         """ Test equality of two field elements.
