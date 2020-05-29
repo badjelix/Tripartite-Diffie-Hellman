@@ -122,12 +122,20 @@ def squareAndMultiply(x, n, p = 0):
         i -= 1
     return result
 
+def switchCoefs(poly):
+    res = []
+    i = len(poly) - 1
+    while i >= 0:
+        res += [poly[i]]
+        i -= 1
+    return res
 
 def getIrreducible(p, n):
-    return gf_irreducible(n, p, ZZ)
+    return switchCoefs(gf_irreducible(n, p, ZZ))
 
 def getElement(p, n):
-    return gf_random(n, p, ZZ)
+    return switchCoefs(gf_random(n, p, ZZ))
+
 
 def factor2(p):
     s = 0
@@ -141,7 +149,8 @@ def testQuadraticResidue(ele):
         one = FieldElement(1, ele.p)
     else:
         one = FieldElement([1] + [0] * (ele.n - 1), ele.p, ele.n, ele.irre_poly)
-    return squareAndMultiply(ele, (ele.p - 1) // 2) == one
+    result = squareAndMultiply(ele, (ele.p ** ele.n - 1) // 2)
+    return result == one
     
 def getNonQuadraticResidue(p, n, irre_poly):
     if n > 1:
@@ -165,12 +174,12 @@ def findSqrt(x, p, n):
     if n > 1:
         zero = FieldElement([0] * n, p, n, x.irre_poly)
         one = FieldElement([1] + [0]* (n - 1), p, n, x.irre_poly)
-        z = getNonQuadraticResidue(p, n, x.irre_poly)
     else: 
         zero = FieldElement(0, p)
         one = FieldElement(1, p)
-        z = getNonQuadraticResidue(p, n, x.irre_poly)
+    z = getNonQuadraticResidue(p, n, x.irre_poly)
 
+    print("z: " + str(z))
     q, s = factor2(p - 1)
     m = s
     c = squareAndMultiply(z, q)
@@ -180,11 +189,9 @@ def findSqrt(x, p, n):
     while t != zero and t != one:
         i = 1
         while squareAndMultiply(t, 2 ** i) != one and i < m:
-            print(squareAndMultiply(t, 2 ** i))
             i += 1
         if i == m:
             raise ValueError("This shouldn't happen")
-        print("passei aqui")
         b = squareAndMultiply(c, 2 ** (m - i - 1))
         m = i
         c = b ** 2
