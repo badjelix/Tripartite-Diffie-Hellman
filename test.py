@@ -3,6 +3,7 @@
 import math
 from fieldelement import *
 from util import *
+import random
 
 if __name__ == "__main__":
     prime = 482677778157700435350444108563600470389539607291135742953085077414483299007817968457323051999107203153032937333023591271636050696817523671646492380723773419011
@@ -13,5 +14,15 @@ if __name__ == "__main__":
     ec = EllipticCurve(FieldElement([1,0], prime, 2, poly), FieldElement([0,0], prime, 2, poly))
     order = 593917583375891588584754753148372137203682206097
 
-    print(WeilPairing(p, q, s, order, ec))
-    print(TatePairing(addPoint(p, negatePoint(q), ec), addPoint(p, q, ec),order,ec, prime, 2))
+    """print(WeilPairing(p, q, s, order, ec))
+    print(TatePairing(addPoint(p, negatePoint(q), ec), addPoint(p, q, ec),order,ec, prime, 2))"""
+
+    while(true):
+        x = FieldElement([random.randint(0,prime),0], prime, 2, poly)
+        y = # calcular y
+        random_p = Point(x,y)
+        if(!random_p.isInfinity() and doubleAndAdd(random_p,order) == PointAtInfinity()):
+            print("linear_independent generator")
+            break
+        else:
+            print("not a generator")
