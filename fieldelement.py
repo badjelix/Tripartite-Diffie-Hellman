@@ -151,7 +151,7 @@ def testQuadraticResidue(ele):
         one = FieldElement([1] + [0] * (ele.n - 1), ele.p, ele.n, ele.irre_poly)
     result = squareAndMultiply(ele, (ele.p ** ele.n - 1) // 2)
     return result == one
-    
+
 def getNonQuadraticResidue(p, n, irre_poly):
     if n > 1:
         f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
@@ -174,7 +174,7 @@ def findSqrt(x, p, n):
     if n > 1:
         zero = FieldElement([0] * n, p, n, x.irre_poly)
         one = FieldElement([1] + [0]* (n - 1), p, n, x.irre_poly)
-    else: 
+    else:
         zero = FieldElement(0, p)
         one = FieldElement(1, p)
     z = getNonQuadraticResidue(p, n, x.irre_poly)
@@ -202,7 +202,8 @@ def findSqrt(x, p, n):
     else:
         return r
 
-    
+def sqrt3mod4(el, q):
+    return el**((q+1)//4)
 
 
 class FieldElement():

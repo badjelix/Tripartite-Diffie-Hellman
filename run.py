@@ -3,14 +3,13 @@ from fieldelement import *
 
 if __name__ == "__main__":
 
-    """ NIST CURVE CODE """
-    p_nist = 
-
     """ Generate the curve over a finite field"""
     p = 482677778157700435350444108563600470389539607291135742953085077414483299007817968457323051999107203153032937333023591271636050696817523671646492380723773419011
     k = 2
     irreducible_poly = [1,0,1]
-    ec = EllipticCurve(FieldElement([1,0], p, k, irreducible_poly), FieldElement([0,0], p, k, irreducible_poly))
+    a = FieldElement([1,0], p, k, irreducible_poly)
+    b = FieldElement([0,0], p, k, irreducible_poly)
+    ec = EllipticCurve(a, b)
 
     """ Get 2 random independent points P and Q with the same order (these
         points are the generators) """
