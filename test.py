@@ -17,7 +17,7 @@ if __name__ == "__main__":
     """print(WeilPairing(p, q, s, order, ec))
     print(TatePairing(addPoint(p, negatePoint(q), ec), addPoint(p, q, ec),order,ec, prime, 2))"""
 
-    while(true):
+    """while(true):
         x = FieldElement([random.randint(0,prime),0], prime, 2, poly)
         y = # calcular y
         random_p = Point(x,y)
@@ -25,4 +25,4 @@ if __name__ == "__main__":
             print("linear_independent generator")
             break
         else:
-            print("not a generator")
+            print("not a generator")"""

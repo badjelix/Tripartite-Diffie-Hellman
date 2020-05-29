@@ -131,8 +131,8 @@ def factor2(p):
     return p, s
 
 def testQuadraticResidue(ele):
-    return squareAndMultiply(ele, (p - 1) // 2) == 1
-    
+    return squareAndMultiply(ele, (ele.p - 1) // 2) == FieldElement(1, ele.p)
+
 def getNonQuadraticResidue(p, n, irre_poly):
     f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
     while testQuadraticResidue(f):
@@ -143,7 +143,7 @@ def getNonQuadraticResidue(p, n, irre_poly):
 
 #tonelli-shanks
 def findSqrt(x, p, n):
-    
+
     if not testQuadraticResidue(x):
         raise ValueError(str(x) + " is not a quadratic residue")
 
@@ -155,7 +155,7 @@ def findSqrt(x, p, n):
     t = squareAndMultiply(x, q)
     r = squareAndMultiply(x, (q + 1) // 2)
 
-    
+
 
 
 
