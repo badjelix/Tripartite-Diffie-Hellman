@@ -30,6 +30,12 @@ class EllipticCurve:
         self.a = a
         self.b = b
 
+    def testPoint(self,p):
+        if p.y*p.y == p.x*p.x*p.x + self.a*p.x + self.b:
+            return True
+        else:
+            return False
+
 
 """ Elliptic curve operations """
 def negatePoint(p):
