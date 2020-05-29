@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import math
-from sympy.polys.galoistools import gf_irreducible, gf_irreducible_p
+from sympy.polys.galoistools import gf_irreducible, gf_irreducible_p, gf_random
 from sympy.polys.domains import ZZ
 
 def xgcd(a, b):
@@ -116,66 +116,46 @@ def squareAndMultiply(x, n, p = 0):
         i -= 1
     return result
 
-"""
-def degreedict(poly):
-    maximum = 0
-    for power in poly:
-        if power > maximum and poly[power] != 0:
-            maximum = power
-    return maximum
-
-def copydict(poly, power):
-    res = {}
-    for p in poly:
-        res[p+power] = poly[p]
-    return res
-
-def polysubdict(a, b, mod):
-    res = {}
-    for i in a:
-        if i not in b:
-            res[i] = a[i]
-        else:
-            res[i] = (a[i] - b[i]) % mod
-            if res[i] == 0:
-                del res[i]
-    for i in b:
-        if i not in a and b[i] != 0:
-            res[i] = (-b[i]) % mod
-    return res
-
-def nullpolydict(poly):
-    for p in poly:
-        if poly[p] != 0:
-            return False
-    return True
-
-def polydivdict(poly, div, mod):
-    quotient = {}
-    polydegree = degreedict(poly)
-    divdegree = degreedict(div)
-    while polydegree >= divdegree and not nullpolydict(poly):
-        temp = copydict(div, polydegree - divdegree)
-        inv = inverse(temp[polydegree], mod)
-        if polydegree - divdegree in quotient:
-            quotient[polydegree - divdegree] = (quotient[polydegree - divdegree] + inv * poly[polydegree]) % mod
-        else:
-            quotient[polydegree - divdegree] = (inv * poly[polydegree]) % mod
-
-        if quotient[polydegree - divdegree] == 0:
-            del quotient[polydegree - divdegree] 
-        
-        for p in temp:
-            temp[p] = temp[p] * inv * poly[polydegree] % mod
-        poly = polysubdict(poly, temp, mod)
-        polydegree = degreedict(poly)
-        print(poly)
-    return quotient, poly
-
-"""
 
 def getIrreducible(p, n):
     return gf_irreducible(n, p, ZZ)
+
+def getElement(p, n):
+    return gf_random(n, p, ZZ)
+
+def factor2(p):
+    s = 0
+    while p % 2 == 0:
+        p = p // 2
+        s += 1
+    return p, s
+
+def testQuadraticResidue(ele):
+    return squareAndMultiply(ele, (p - 1) // 2) == 1
+    
+def getNonQuadraticResidue(p, n, irre_poly):
+    f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
+    while testQuadraticResidue(f):
+        f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
+    return f
+
+
+
+#tonelli-shanks
+def findSqrt(x, p, n):
+    
+    if not testQuadraticResidue(x):
+        raise ValueError(str(x) + " is not a quadratic residue")
+
+    z = getNonQuadraticResidue(p, n, x.irre_poly)
+
+    q, s = factor2(p - 1)
+    m = s
+    c = squareAndMultiply(z, q)
+    t = squareAndMultiply(x, q)
+    r = squareAndMultiply(x, (q + 1) // 2)
+
+    
 
 
 
