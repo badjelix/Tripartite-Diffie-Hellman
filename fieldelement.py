@@ -3,6 +3,7 @@
 import math
 from sympy.polys.galoistools import gf_irreducible, gf_irreducible_p, gf_random
 from sympy.polys.domains import ZZ
+from random import random
 
 def xgcd(a, b):
     """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
@@ -97,11 +98,16 @@ def getBinary(integer):
     return [int(n) for n in bin(integer)[2:]]
 
 def squareAndMultiply(x, n, p = 0):
+
     binary = getBinary(n)
     if p != 0 or isinstance(x, int):
         result = 1
     else:
-        result = x / x
+        if x.n == 1:
+            result = FieldElement(1, x.p)
+        else:
+            result = FieldElement([1] + [0]*(x.n - 1), x.p, x.n, x.irre_poly)
+
     i = len(binary) - 1
     while i >= 0:
         if binary[i] == 1:
@@ -131,12 +137,21 @@ def factor2(p):
     return p, s
 
 def testQuadraticResidue(ele):
-    return squareAndMultiply(ele, (ele.p - 1) // 2) == FieldElement(1, ele.p)
-
+    if ele.n == 1:
+        one = FieldElement(1, ele.p)
+    else:
+        one = FieldElement([1] + [0] * (ele.n - 1), ele.p, ele.n, ele.irre_poly)
+    return squareAndMultiply(ele, (ele.p - 1) // 2) == one
+    
 def getNonQuadraticResidue(p, n, irre_poly):
-    f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
-    while testQuadraticResidue(f):
+    if n > 1:
         f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
+        while testQuadraticResidue(f):
+            f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
+    else:
+        f = FieldElement(1 + int(random() * (p - 1)), p)
+        while testQuadraticResidue(f):
+            f = FieldElement(1 + int(random() * (p - 1)), p)
     return f
 
 
@@ -147,7 +162,14 @@ def findSqrt(x, p, n):
     if not testQuadraticResidue(x):
         raise ValueError(str(x) + " is not a quadratic residue")
 
-    z = getNonQuadraticResidue(p, n, x.irre_poly)
+    if n > 1:
+        zero = FieldElement([0] * n, p, n, x.irre_poly)
+        one = FieldElement([1] + [0]* (n - 1), p, n, x.irre_poly)
+        z = getNonQuadraticResidue(p, n, x.irre_poly)
+    else: 
+        zero = FieldElement(0, p)
+        one = FieldElement(1, p)
+        z = getNonQuadraticResidue(p, n, x.irre_poly)
 
     q, s = factor2(p - 1)
     m = s
@@ -155,8 +177,25 @@ def findSqrt(x, p, n):
     t = squareAndMultiply(x, q)
     r = squareAndMultiply(x, (q + 1) // 2)
 
+    while t != zero and t != one:
+        i = 1
+        while squareAndMultiply(t, 2 ** i) != one and i < m:
+            print(squareAndMultiply(t, 2 ** i))
+            i += 1
+        if i == m:
+            raise ValueError("This shouldn't happen")
+        print("passei aqui")
+        b = squareAndMultiply(c, 2 ** (m - i - 1))
+        m = i
+        c = b ** 2
+        t = t * b ** 2
+        r = r * b
+    if t == zero:
+        return zero
+    else:
+        return r
 
-
+    
 
 
 class FieldElement():
