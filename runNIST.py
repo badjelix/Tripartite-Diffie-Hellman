@@ -42,7 +42,7 @@ if __name__ == "__main__":
         Qy = sqrt3mod4(Qx*Qx*Qx+ec.a*Qx+ec.b,q)
         Q = Point(Qx, Qy)
 
-    print("JA TEMOS QQQQQQQQ")
+    print("JA TEMOS Q")
 
     S = Point(FieldElement([0,0,0], p, k, irreducible_poly), FieldElement([0,0,0], p, k, irreducible_poly))
 

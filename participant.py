@@ -7,15 +7,18 @@ import hashlib
 import itertools
 
 class Participant:
-    def __init__(self, name, curve, P, Q, S, order):
+    def __init__(self, name, pairing, curve, P, Q, order, S = PointAtInfinity()):
+        # Pairing that's going to be used to generate shared keys
+        self.pairing = pairing
         # Name from set {'A','B','C'} of the participant
         self.name = name
         # Elliptic curve
         self.curve = curve
         # Order of generator points
         self.order = order
-        # Point S used in Miller's Algorithm
-        self.S = S
+        # Point S used in Miller's Algorithm for the Weil pairing
+        if pairing == 'Weil':
+            self.S = S
         # Dictionary used to store the public values from different participants
         self.publicKeys = {}
         # Generate a private key: integer k s.t. 1 < k < order - 1
@@ -37,9 +40,12 @@ class Participant:
             if key.startswith("Q") and (key != "P_" + self.name) and (key[2] != P[2]):
                 Q = key
         # Generate Weil Pairing (using Miller's Algorithm)
-        weilpairing = WeilPairing(self.publicKeys.get(P), self.publicKeys.get(Q), self.S, self.order, self.curve)
+        if self.pairing == "Weil":
+            pairing = WeilPairing(self.publicKeys.get(P), self.publicKeys.get(Q), self.S, self.order, self.curve)
+        else:
+            pairing = TatePairing(self.publicKeys.get(P), self.publicKeys.get(Q), self.order, self.curve)
         # Exponentiate Weil Pairing to private key and get shared key
-        sharedKey = squareAndMultiply(weilpairing, self.privateKey)
+        sharedKey = squareAndMultiply(pairing, self.privateKey)
         # Hash shared key so it can be used for symmetric crypto
         self.sharedKeyHash = hashlib.sha256(sharedKey.toString().encode()).hexdigest()
 

@@ -20,11 +20,11 @@ if __name__ == "__main__":
 
     """ Create participants (each of them generates their private keys and public values) """
     print("A is generating his private and public keys")
-    A = Participant('A', ec, P, Q, S, order)
+    A = Participant('Weil', 'A', ec, P, Q, order, S)
     print("B is generating his private and public keys")
-    B = Participant('B', ec, P, Q, S, order)
+    B = Participant('Weil', 'B', ec, P, Q, order, S)
     print("C is generating his private and public keys")
-    C = Participant('C', ec, P, Q, S, order)
+    C = Participant('Weil', 'C', ec, P, Q, order, S)
 
     """ Broadcast phase: each participant sends their public values to the
         other two in a single message """
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     B.getPublicKeys('C', C.sendPublicKeys())
 
     """ Test generated key! """
-    print("Participant A is going to broadcast a message to the other participants, type it here: (max 64 chars)")
+    print("Participant A is going to broadcast a message to the other participants, type it here: (max 64 chars)\n>> ",end='')
     message = input()
     B.receiveMessage(A.sendMessage(message))
     C.receiveMessage(A.sendMessage(message))
