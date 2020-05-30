@@ -30,62 +30,61 @@ class EllipticCurve:
         self.a = a
         self.b = b
 
-    def testPoint(self,p):
-        if p.y*p.y == p.x*p.x*p.x + self.a*p.x + self.b:
+    def testPoint(self,P):
+        if P.y*P.y == P.x*P.x*P.x + self.a*P.x + self.b:
             return True
         else:
             return False
 
 
 """ Elliptic curve operations """
-def negatePoint(p):
-    return Point(p.x, p.y - 2 * p.y)
+def negatePoint(P):
+    return Point(P.x, P.y - 2 * P.y)
 
-def addPoint(p, q, curve):
-    if p.isInfinity():
-        return q
-    elif q.isInfinity():
-        return p
-    elif p.x == q.x and p.y == q.y - 2 * q.y:
+def addPoint(P, Q, curve):
+    if P.isInfinity():
+        return Q
+    elif Q.isInfinity():
+        return P
+    elif P.x == Q.x and P.y == Q.y - 2 * Q.y:
         return PointAtInfinity()
-    elif p.x == q.x and q.y == p.y:
-        slope = (3 * pow(p.x, 2) + curve.a) / (2 * p.y)
+    elif P.x == Q.x and Q.y == P.y:
+        slope = (3 * pow(P.x, 2) + curve.a) / (2 * P.y)
     else:
-        slope = (q.y - p.y) / (q.x - p.x)
-    x = slope ** 2 - p.x - q.x
-    y = slope * (p.x - x) - p.y
+        slope = (Q.y - P.y) / (Q.x - P.x)
+    x = slope ** 2 - P.x - Q.x
+    y = slope * (P.x - x) - P.y
     return Point(x,y)
 
 def getBinary(integer):
     return [int(n) for n in bin(integer)[2:]]
 
-def doubleAndAdd(p, n, curve):
+def doubleAndAdd(P, n, curve):
     binary = getBinary(n)
-    r = PointAtInfinity()
-    q = p
+    R = PointAtInfinity()
     i = len(binary) - 1
     while i >= 0:
         if binary[i] == 1:
-            r = addPoint(r, q, curve)
-        q = addPoint(q, q, curve)
+            R = addPoint(R, P, curve)
+        P = addPoint(P, P, curve)
         i -= 1
-    return r
+    return R
 
 
 
 # Miller Algorithm
 
-def computeFunction(p, q, value, curve):
-    if p.isInfinity() or q.isInfinity() or (p.x == q.x and p.y == q.y - 2 * q.y):
-        if p.isInfinity():
-            return value.x - q.x
+def computeFunction(P, Q, value, curve):
+    if P.isInfinity() or Q.isInfinity() or (P.x == Q.x and P.y == Q.y - 2 * Q.y):
+        if P.isInfinity():
+            return value.x - Q.x
         else:
-            return value.x - p.x
-    elif p.x == q.x and p.y == q.y:
-        slope = (3 * pow(p.x, 2) + curve.a) / (2 * p.y)
+            return value.x - P.x
+    elif P.x == Q.x and P.y == Q.y:
+        slope = (3 * pow(P.x, 2) + curve.a) / (2 * P.y)
     else:
-        slope = (p.y - q.y) / (p.x - q.x)
-    return (value.y - p.y + slope * (p.x - value.x)) / (value.x + p.x + q.x - pow(slope, 2))
+        slope = (P.y - Q.y) / (P.x - Q.x)
+    return (value.y - P.y + slope * (P.x - value.x)) / (value.x + P.x + Q.x - pow(slope, 2))
 
 
 def Miller(p, order, value, curve):
@@ -112,9 +111,9 @@ def WeilPairing(p, q, s, order, curve):
 
     return a * d / (b * c)
 
-def TatePairing(p, q, order, curve, mod, n):
+def TatePairing(p, q, order, curve):
     a = Miller(p, order, q, curve)
-    res = squareAndMultiply(a, ((mod ** n - 1) // order))
+    res = squareAndMultiply(a, ((p.x.p ** p.x.n - 1) // order))
     return res
 
 if __name__ == "__main__":
@@ -124,7 +123,7 @@ if __name__ == "__main__":
     ec = EllipticCurve(FieldElement([21,0,0,0],prime,4,poly),FieldElement([15,0,0,0],prime,4,poly))
     p = Point(FieldElement([45,0,0,0],prime,4,poly),FieldElement([23,0,0,0],prime,4,poly))
     q = Point(FieldElement([29,0,31,0],prime,4,poly),FieldElement([0,11,0,35],prime,4,poly))
-    print(TatePairing(p,q,17,ec, prime, 4)) #expected: [39, 45, 43, 33]
+    print(TatePairing(p,q,17,ec)) #expected: [39, 45, 43, 33]
 
     prime = 23
     poly = [1,0,1]

@@ -14,12 +14,13 @@ if __name__ == "__main__":
     ec = EllipticCurve(FieldElement([1,0], prime, 2, poly), FieldElement([0,0], prime, 2, poly))
     order = 593917583375891588584754753148372137203682206097
 
-    """print(WeilPairing(p, q, s, order, ec))
-    print(TatePairing(addPoint(p, negatePoint(q), ec), addPoint(p, q, ec),order,ec, prime, 2))"""
+    """print(WeilPairing(p, q, s, order, ec))"""
+    print(TatePairing(addPoint(p, negatePoint(q), ec), addPoint(p, q, ec),order,ec))
 
+    """
     f = FieldElement([0,2], 1009, 2, [1,0,1])
     findSqrt(f, 1009, 2)
-
+    """
     """while(true):
         x = FieldElement([random.randint(0,prime),0], prime, 2, poly)
         y = # calcular y
