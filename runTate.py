@@ -19,11 +19,11 @@ if __name__ == "__main__":
 
     """ Create participants (each of them generates their private keys and public values) """
     print("A is generating his private and public keys")
-    A = Participant('Tate', 'A', ec, P, Q, order)
+    A = Participant('A','Tate', ec, P, Q, order)
     print("B is generating his private and public keys")
-    B = Participant('Tate', 'B', ec, P, Q, order)
+    B = Participant('B', 'Tate', ec, P, Q, order)
     print("C is generating his private and public keys")
-    C = Participant('Tate', 'C', ec, P, Q, order)
+    C = Participant('C', 'Tate', ec, P, Q, order)
 
     """ Broadcast phase: each participant sends their public values to the
         other two in a single message """
