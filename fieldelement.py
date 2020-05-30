@@ -5,11 +5,14 @@ from sympy.polys.galoistools import gf_irreducible, gf_irreducible_p, gf_random
 from sympy.polys.domains import ZZ
 from random import random
 
+
+""" util functions for F_p """
+
+
+# return (g, x, y) such that a*x + b*y = g = gcd(a, b)
 def xgcd(a, b):
-    """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
     x0, x1, y0, y1 = 0, 1, 1, 0
     while a != 0:
-        #print("a: " + str(a) + " b: " + str(b))
         q, a, b = b // a, b % a, a
         y0, y1 = y1, y0 - q * y1
         x0, x1 = x1, x0 - q * x1
@@ -21,8 +24,12 @@ def inverse(number, mod):
         raise ValueError(str(g) + "Isnt mod a prime?")
     return x
 
+
+""" util functions for F_p^n """
+
+
+# return (g, x, y) such that a*x + b*y = g = gcd(a, b)
 def polyxgcd(a, b, irre, mod):
-    """return (g, x, y) such that a*x + b*y = g = gcd(a, b)"""
     if degree(a) == 0:
         b, x0, y0 = xgcd(a[0], mod)
         b = [b % mod] + [0] * (degree(irre) - 1)
@@ -41,21 +48,24 @@ def polyxgcd(a, b, irre, mod):
             a, b = r, a
             y0, y1 = y1, polysub(y0, polymul(q, y1, irre, mod), mod)
             x0, x1 = x1, polysub(x0, polymul(q, x1, irre, mod), mod)
-    rest = b[0]
-    b = b[:degree(irre)]
-    if rest != 1:
-        for i in range(len(b)):
-            b[i] = b[i] * inverse(rest, mod) % mod
-            x0[i] = x0[i] * inverse(rest, mod) % mod
-            y0[i] = y0[i] * inverse(rest, mod) % mod
     return b, x0, y0
 
+
+# return f(x) such that a(x)f(x) = 1
 def polyinverse(a, irre, mod):
     g, x, _ = polyxgcd(a, irre, irre, mod)
+    
+    rest = g[0]
+    g = g[:degree(irre)]
+    if rest != 1:
+        for i in range(len(g)):
+            g[i] = g[i] * inverse(rest, mod) % mod
+            x[i] = x[i] * inverse(rest, mod) % mod
     if g != [1] + [0] * (len(g) - 1):
         raise ValueError(str(g) + " Isnt mod a prime? " + str(x))
     return x[:degree(irre)]
 
+# compute a(x)b(x) mod irre(x)
 def polymul(a, b, irre, mod):
     new_exp_coefs = [0] * (len(a) + len(b) + 1)
     for e in range(len(a)):
@@ -64,6 +74,7 @@ def polymul(a, b, irre, mod):
     _ , r = polydiv(new_exp_coefs, irre, mod)
     return r[:degree(irre)]
 
+# compute a(x) - b(x)
 def polysub(a, b, mod):
     order = max(len(a), len(b))
     res = []
@@ -76,6 +87,7 @@ def polysub(a, b, mod):
             res += [(a[i] - b[i]) % mod]
     return res
 
+# return the degree of the polynomial (last non-zero position)
 def degree(poly):
     res = 0
     for e in range(len(poly)):
@@ -83,6 +95,7 @@ def degree(poly):
             res = e
     return res
 
+# compute the quocient and remainder of poly(x) / div (x)
 def polydiv(poly, div, mod):
     quotient = [0] * len(poly)
     while degree(poly) >= degree(div) and poly != [0] * len(poly):
@@ -94,9 +107,12 @@ def polydiv(poly, div, mod):
         poly = polysub(poly, temp, mod)
     return quotient, poly
 
+# binary respresentation of an integer (ex.: 4 -> [1,0,0])
 def getBinary(integer):
     return [int(n) for n in bin(integer)[2:]]
 
+# compute x ^ n efficiently
+# x can be an integer or a field element. In the first case, provide p (if in Z_p)
 def squareAndMultiply(x, n, p = 0):
 
     binary = getBinary(n)
@@ -122,6 +138,8 @@ def squareAndMultiply(x, n, p = 0):
         i -= 1
     return result
 
+# [1,0,0] -> [0,0,1]
+# this exists because the sympy library represents polynomials the opposite way
 def switchCoefs(poly):
     res = []
     i = len(poly) - 1
@@ -130,13 +148,16 @@ def switchCoefs(poly):
         i -= 1
     return res
 
+# get an irreducible polynomial for F_p^n
 def getIrreducible(p, n):
     return switchCoefs(gf_irreducible(n, p, ZZ))
 
+# get a random element for F_p^n
+# Note: the highest degree coeficient will always be 1
 def getElement(p, n):
     return switchCoefs(gf_random(n, p, ZZ))
 
-
+# return p in this format: q2^s
 def factor2(p):
     s = 0
     while p % 2 == 0:
@@ -144,6 +165,7 @@ def factor2(p):
         s += 1
     return p, s
 
+# test if an element is a quadratic residue, using Euler criterion
 def testQuadraticResidue(ele):
     if ele.n == 1:
         one = FieldElement(1, ele.p)
@@ -152,6 +174,7 @@ def testQuadraticResidue(ele):
     result = squareAndMultiply(ele, (ele.p ** ele.n - 1) // 2)
     return result == one
 
+# get and element from F_p^n which is not a quadratic residue
 def getNonQuadraticResidue(p, n, irre_poly):
     if n > 1:
         f = FieldElement(getElement(p, n - 1), p, n, irre_poly)
@@ -164,8 +187,8 @@ def getNonQuadraticResidue(p, n, irre_poly):
     return f
 
 
-
-#tonelli-shanks
+# tonelli-shanks algoritm
+# We could not make this work in F_p^n
 def findSqrt(x, p, n):
 
     if not testQuadraticResidue(x):
@@ -202,9 +225,13 @@ def findSqrt(x, p, n):
     else:
         return r
 
+
 def sqrt3mod4(el, q):
     return el**((q+1)//4)
 
+
+
+""" Element of a Galois Field """
 
 class FieldElement():
     """ Class for an element in a finite field.
@@ -215,14 +242,15 @@ class FieldElement():
                      element is in.
             exp_coefs (list): The set of expansion coefficients of this element
                               in terms of some basis.
+            irre_poly: The irreducible polynomial
 
         Attributes:
             p (int): The prime order of the field this element is in.
             n (int): The degree of the field extension for the field this
                      element is in.
-            dim (int): The dimension of the field, :math:`p^n`.
             exp_coefs (list): The set of expansion coefficients of this element
                               in terms of the polynomial basis.
+            irre_poly: The irreducible polynomial
     """
 
     def __init__(self, exp_coefs, p, n = 1, irre_poly = []):
@@ -262,6 +290,16 @@ class FieldElement():
             new_coefs = [(self.exp_coefs[i] + el.exp_coefs[i]) % self.p for i in range(0, self.n)]
             return FieldElement(new_coefs, self.p, self.n, self.irre_poly)
 
+    def __neg__(self):
+        """Negative"""
+        # Prime case
+
+        if self.n == 1:
+            return FieldElement((-self.exp_coefs) % self.p, self.p)
+        else: # Power of prime case
+            # Coefficients simply add modulo p
+            new_coefs = [(-self.exp_coefs[i]) % self.p for i in range(0, self.n)]
+            return FieldElement(new_coefs, self.p, self.n, self.irre_poly)
 
     def __radd__(self, el):
         """ Add a field element to the left of this one.
@@ -387,8 +425,7 @@ class FieldElement():
 
             Returns:
                 This element to the power of exponent. Just the normal power
-                modulo p for primes. For power-of-primes, we define that the
-                power of any element to 0 is the 0 element, and *not* 1.
+                modulo p for primes.
         """
         # Prime case
         if self.n == 1:
@@ -462,9 +499,6 @@ class FieldElement():
                 The FieldElement that is the inverse of this one. All
                 elements have a multiplicative inverse except for 0;
                 if 0 is passed, prints error message and returns None.
-
-            Note: The trace of an element can be invoked in two ways. One can
-            do el.inv() or inv(el).
         """
 
         if self.n == 1: #prime case

@@ -28,15 +28,13 @@ if __name__ == "__main__":
     """ Broadcast phase: each participant sends their public values to the
         other two in a single message """
     # A sends public keys
-    print("A is broadcasting his public values")
+    print("Broadcast public values")
     B.getPublicKeys('A', A.sendPublicKeys())
     C.getPublicKeys('A', A.sendPublicKeys())
     # B sends public keys
-    print("B is broadcasting his public values")
     A.getPublicKeys('B', B.sendPublicKeys())
     C.getPublicKeys('B', B.sendPublicKeys())
     # C sends public keys
-    print("C is broadcasting his public values")
     A.getPublicKeys('C', C.sendPublicKeys())
     B.getPublicKeys('C', C.sendPublicKeys())
 
